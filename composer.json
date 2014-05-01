@@ -16,11 +16,12 @@
         "ext-openssl": "*"
     },
     "require-dev": {
-        "atoum/atoum": "*"
+        "atoum/atoum": "dev-master",
+        "fabpot/php-cs-fixer": "dev-master"
     },
     "autoload": {
         "psr-4": {
-            "Awakenweb\\": "src"
+            "Awakenweb\\Livedocx\\": "src/"
         }
     },
     "minimum-stability": "dev"

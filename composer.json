@@ -1,0 +1,27 @@
+{
+    "name": "awakenweb/livedocx",
+    "type": "library",
+    "description": "Livedocx webservice PHP API for PDF generation without using Zend Framework",
+    "homepage": "http://github.com/awakenweb/livedocx",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mathieu SAVELLI",
+            "email": "mathieu.savelli@awakenweb.fr"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-soap": "*",
+        "ext-openssl": "*"
+    },
+    "require-dev": {
+        "atoum/atoum": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Awakenweb\\": "src"
+        }
+    },
+    "minimum-stability": "dev"
+}

@@ -76,7 +76,7 @@ class Block
         }
 
         if ( is_null($value) || ! is_string($value) || $value === '' ) {
-            throw new Exceptions\BlockException('Block binding value must a string');
+            throw new Exceptions\BlockException('Block binding value must be a non empty string');
         }
 
         $this->bindings[ $key ] = $value;

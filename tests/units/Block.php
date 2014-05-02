@@ -39,7 +39,7 @@ class Block extends atoum
                     $block->bind('randomKey' , $value);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\BlockException')
-                ->hasMessage('Block binding value must a string');
+                ->hasMessage('Block binding value must be a non empty string');
     }
 
     public function test_block_getName_returns_array()

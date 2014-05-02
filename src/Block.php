@@ -62,8 +62,8 @@ class Block
     /**
      * Bind a value to a block key
      *
-     * @param string $key
-     * @param string $value
+     * @param string               $key
+     * @param string|integer|float $value
      *
      * @return \Awakenweb\Livedocx\Block
      *
@@ -75,8 +75,8 @@ class Block
             throw new Exceptions\BlockException('Block binding key must be a non empty string');
         }
 
-        if ( is_null($value) || ! is_string($value) || $value === '' ) {
-            throw new Exceptions\BlockException('Block binding value must be a non empty string');
+        if ( is_null($value) || ( ! is_string($value) && ! is_numeric($value)) || $value === '' ) {
+            throw new Exceptions\BlockException('Block binding value must be a non empty string or number');
         }
 
         $this->bindings[ $key ] = $value;

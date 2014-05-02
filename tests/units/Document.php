@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx\tests\units;
 
-require_once('/vendor/autoload.php');
+require_once '/vendor/autoload.php';
 
 use Awakenweb\Livedocx\Document as LDXDocument;
 use atoum;
@@ -16,13 +16,13 @@ class Document extends atoum
     public function test_new_document_throws_exceptions_with_invalid_parameters($value)
     {
 
-        $this->exception(function() use($value) {
+        $this->exception(function () use ($value) {
                     $doc = new LDXDocument($value , 'random string');
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('The name of the document must be a non empty string');
 
-        $this->exception(function() use( $value) {
+        $this->exception(function () use ($value) {
                     $doc = new LDXDocument('randomName.txt' , $value);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
@@ -36,7 +36,7 @@ class Document extends atoum
     {
         $doc = new LDXDocument('test.txt' , 'This is a test purpose only string');
 
-        $this->exception(function() use ($doc , $destination) {
+        $this->exception(function () use ($doc , $destination) {
                     $doc->save($destination);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')

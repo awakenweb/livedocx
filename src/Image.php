@@ -73,7 +73,8 @@ class Image
         if (!$full) {
             return $this->filename;
         }
-        return $filename = $this->directory ? $this->directory . $this->filename : $this->filename;
+        $filename = $this->directory ? $this->directory . '/' . $this->filename : $this->filename;
+        return str_replace('//', '/', $filename);
     }
 
     /**
@@ -151,7 +152,7 @@ class Image
     public function upload()
     {
         // if a directory is provided, concatenate it with the
-        $filname = $this->getName(true);
+        $filename = $this->getName(true);
 
         if (!is_readable($filename)) {
             throw new Exceptions\ImageException('Image file from disk is not readable');
@@ -169,10 +170,9 @@ class Image
     }
 
     /**
+     * Download an image file from Livedocx
      *
-     * @return type
-     *
-     * @throws Exceptions\ImageException
+     * @return string
      *
      * @throws Exceptions\ImageException
      */

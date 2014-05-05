@@ -35,12 +35,13 @@ class LivedocxException extends \Exception
     /**
      * Create a new instance of LivedocxException
      *
-     * @param string     $message
+     * @param string $message
+     *
      * @param \Exception $previous
      */
-    public function __construct($message , $previous = null)
+    public function __construct($message = '', $previous = null)
     {
-        parent::__construct( $message , null , $previous );
+        parent::__construct($message, 0, $previous);
     }
 
 }

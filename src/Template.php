@@ -31,7 +31,7 @@ namespace Awakenweb\Livedocx;
  *
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
  */
-class Template implements Soap\HasSoapClient
+abstract class Template
 {
 
     use Soap\HasSoapClient;
@@ -50,73 +50,73 @@ class Template implements Soap\HasSoapClient
 
     public function setName($template_name)
     {
-
+        $this->templateName = $template_name;
     }
 
-    /**
-     * Set the template as a remote template, stored on the Livedocx servers
-     *
-     * @return \Awakenweb\Livedocx\Template
-     */
-    public function setRemote()
+    public function getAcceptedTemplateFormats()
     {
-        $this->remote = true;
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->GetTemplateFormats();
 
-        return $this;
+            if (isset($result->GetTemplateFormatsResult->string)) {
+                $ret = $result->GetTemplateFormatsResult->string;
+                $ret = array_map('strtolower', $ret);
+            }
+
+            return $ret;
+        } catch (Exceptions\SoapException $ex) {
+            throw new Exceptions\TemplateException('Error while getting the list of accepted template formats', $ex);
+        }
     }
 
-    /**
-     * Set the template as a local template, stored locally on your own server
-     *
-     * @return \Awakenweb\Livedocx\Template
-     */
-    public function setLocal()
+    public function getAvailableDocumentFormats()
     {
-        $this->local = false;
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->GetDocumentFormats();
 
-        return $this;
+            if (isset($result->GetDocumentFormatsResult->string)) {
+                $ret = $result->GetDocumentFormatsResult->string;
+                $ret = array_map('strtolower', $ret);
+            }
+
+            return $ret;
+        } catch (Exceptions\SoapException $ex) {
+            throw new Exceptions\TemplateException('Error while getting the list of available document formats', $ex);
+        }
     }
 
     /**
-     * Check if the template is remote or local
+     * Get the list of all available fonts on the Livedocx service
      *
      * @return type
+     *
+     * @throws Exceptions\TemplateException
      */
-    public function isRemote()
+    public function getAvailableFonts()
     {
-        return $this->remote;
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->GetFontNames();
+
+            if (isset($result->GetFontNamesResult->string)) {
+                $ret = $result->GetFontNamesResult->string;
+            }
+
+            return $ret;
+        } catch (Exceptions\SoapException $ex) {
+            throw new Exceptions\TemplateException('Error while getting the list of available fonts', $ex);
+        }
     }
 
-    /**
-     * Check if a remote template exists on the Livedocx servers
-     *
-     * @return boolean
-     */
-    public function remoteExists()
-    {
-        $result = $this->soapClient->templateExists(['filename' => $this->templateName ]);
-
-        return boolval($result->TemplateExistsResult);
-    }
-
-    /**
-     *
-     */
-    public function upload()
-    {
-
-    }
-
-    /**
-     * Define a subtemplate to ignore when generating the final document
-     *
-     * @param type $subtemplate
-     *
-     * @return \Awakenweb\Livedocx\Template
-     */
     public function ignoreSubTemplate($subtemplate)
     {
-        return $this;
+        try {
+            return $this;
+        } catch (Exceptions\SoapException $ex) {
+            throw new Exceptions\TemplateException("Error while ignoring a subtemplate : '$subtemplate'", $ex);
+        }
     }
 
     /**
@@ -125,13 +125,14 @@ class Template implements Soap\HasSoapClient
      * @param array $subtemplates_list
      *
      * @return \Awakenweb\Livedocx\Template
+     *
+     * @throws Exceptions\TemplateException @see Template::ignoreSubTemplate
      */
     public function ignoreSubTemplates(array $subtemplates_list)
     {
         foreach ($subtemplates_list as $subtemplate) {
             $this->ignoreSubTemplate($subtemplate);
         }
-
         return $this;
     }
 

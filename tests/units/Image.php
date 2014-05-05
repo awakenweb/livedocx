@@ -16,9 +16,7 @@ class Image extends atoum
      */
     public function test_setters_and_getters($filename, $dirname, $expectedName, $expectedFullName)
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $image = new LdxImage($mock);
         $image->setFilename($filename, $dirname);
@@ -29,11 +27,12 @@ class Image extends atoum
                 ->isEqualTo($expectedFullName);
     }
 
+    /**
+     *
+     */
     public function test_listAll_throws_exceptions()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->ListImages = function() {
             throw new Exceptions\SoapException('random exception');
@@ -48,11 +47,12 @@ class Image extends atoum
                 ->hasNestedException();
     }
 
+    /**
+     *
+     */
     public function test_listAll_return_empty_array()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->ListImages = function() {
             $ret = new \stdClass();
@@ -63,11 +63,12 @@ class Image extends atoum
                 ->isEmpty();
     }
 
+    /**
+     *
+     */
     public function test_listAll_return_array()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->ListImages = function() {
             $ret                   = new \stdClass();
@@ -88,12 +89,13 @@ class Image extends atoum
                 ->isNotEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAcceptedFormats_return_array()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageImportFormats = function() {
             $r                                      = new \stdClass();
@@ -107,13 +109,13 @@ class Image extends atoum
                 ->isNotEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAcceptedFormats_return_empty_array()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageImportFormats = function() {
             return new \stdClass();
@@ -125,13 +127,13 @@ class Image extends atoum
                 ->isEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAcceptedFormats_throw_exception()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageImportFormats = function() {
             throw new Exceptions\SoapException('random exception');
@@ -146,12 +148,13 @@ class Image extends atoum
                 ->hasNestedException();
     }
 
+    /**
+     *
+     */
     public function test_getAvailableReturnFormats_return_array()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageExportFormats = function() {
             $r                                      = new \stdClass();
@@ -164,13 +167,13 @@ class Image extends atoum
                 ->isNotEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAvailableReturnFormats_return_empty_array()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageExportFormats = function() {
             return new \stdClass();
@@ -182,13 +185,13 @@ class Image extends atoum
                 ->isEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAvailableReturnFormats_throw_exception()
     {
 
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+        $mock = $this->scaffoldMock($mock);
 
         $mock->getMockController()->GetImageExportFormats = function() {
             throw new Exceptions\SoapException('random exception');
@@ -203,16 +206,63 @@ class Image extends atoum
                 ->hasNestedException();
     }
 
-    /* -----------------------------------------------------------------------*\
-     *                                                                           *
-      \*------------------------------------------------------------------------ */
+    public function test_exists_return_boolean()
+    {
+        $mock = $this->scaffoldMock($mock);
 
+        $mock->getMockController()->ImageExists = function() {
+            return mt_rand(0, 1);
+        };
+
+        $image = new LdxImage($mock);
+        $image->setFilename('test.jpg');
+
+        $this->boolean($image->exists());
+    }
+
+    public function test_exists_throw_exception()
+    {
+        $mock = $this->scaffoldMock($mock);
+
+        $mock->getMockController()->ImageExists = function() {
+            throw new Exceptions\SoapException('random exception');
+        };
+
+        $image = new LdxImage($mock);
+        $image->setFilename('test.jpg');
+
+        $this->exception(function() use ($image) {
+                    $image->exists();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\ImageException')
+                ->hasNestedException();
+    }
+
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = -                               DATA PROVIDERS                              - = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+    /**
+     *
+     * @return array
+     */
     public function filenamesProvider()
     {
         return [
             ['testfile.jpg', null, 'testfile.jpg', 'testfile.jpg'],
             [ 'thisIsATest.png', '/test/', 'thisIsATest.png', '/test/thisIsATest.png']
         ];
+    }
+
+    protected function scaffoldMock($mock)
+    {
+        $this->mockGenerator->orphanize('__construct');
+        $this->mockGenerator->shuntParentClassCalls();
+        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+
+        return $mock;
     }
 
 }

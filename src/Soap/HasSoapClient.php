@@ -38,16 +38,16 @@ trait HasSoapClient
     /**
      * Create a new instance of template, remote or local
      *
-     * @param \Awakenweb\Livedocx\Soap\Client $client
+     * @param \Awakenweb\Livedocx\Client $client
      */
-    public function __construct(Soap\Client $client)
+    public function __construct(Client $client)
     {
         $this->soapClient = $client;
     }
 
     /**
      *
-     * @return Soap\Client
+     * @return Client
      */
     public function getSoapClient()
     {

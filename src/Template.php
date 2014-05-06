@@ -62,6 +62,27 @@ abstract class Template
     }
 
     /**
+     * Return the list of all templates uploaded to the Livedocx service
+     *
+     * @return type
+     *
+     * @throws TemplateException
+     */
+    public function listAll()
+    {
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->ListTemplates();
+            if (isset($result->ListTemplatesResult)) {
+                $ret = $this->_backendListArrayToMultiAssocArray($result->ListTemplatesResult);
+            }
+            return $ret;
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of all uploaded templates', $ex);
+        }
+    }
+
+    /**
      * Return a list of all the accepted template formats you can use to generate your document
      *
      * @return array

@@ -49,7 +49,7 @@ class Local extends Template
      * @param string $template_name
      * @param string $path
      */
-    public function setName($template_name, $path = null)
+    public function setName($template_name , $path = null)
     {
         parent::setName($template_name);
         $this->directory = $path;
@@ -68,17 +68,17 @@ class Local extends Template
         try {
             $templatecontent = $this->getBase64Contents();
             $format          = $this->getFormat();
-        } catch (FileExistException $ex) {
-            throw new TemplateException('Template file does not exist or is not readable', $ex);
+        } catch ( FileExistException $ex ) {
+            throw new TemplateException('Template file does not exist or is not readable' , $ex);
         }
 
         try {
-            $this->getSoapClient()->SetLocalTemplate(array(
-                'template' => $templatecontent,
+            $this->getSoapClient()->SetLocalTemplate([
+                'template' => $templatecontent ,
                 'format'   => $format
-            ));
-        } catch (SoapException $ex) {
-            throw new TemplateException('Error while setting the local template as the active template', $ex);
+            ]);
+        } catch ( SoapException $ex ) {
+            throw new TemplateException('Error while setting the local template as the active template' , $ex);
         }
     }
 
@@ -92,22 +92,25 @@ class Local extends Template
      */
     public function upload()
     {
-
-        if (!is_readable($this->getName(true))) {
-            throw new TemplateException('Cannot read local template from disk.');
-        }
         try {
-            $this->getSoapClient()->UploadTemplate(array(
-                'template' => $this->getBase64Contents(),
-                'filename' => basename($this->getName()),
-            ));
+            $templatecontent = $this->getBase64Contents();
+            $filename        = basename($this->getName());
+        } catch ( FileExistException $ex ) {
+            throw new TemplateException('Template file does not exist or is not readable' , $ex);
+        }
+
+        try {
+            $this->getSoapClient()->UploadTemplate([
+                'template' => $templatecontent ,
+                'filename' => $filename ,
+            ]);
 
             $remoteTemplate = new Remote($this->getSoapClient());
             $remoteTemplate->setName($this->getName());
 
             return $remoteTemplate;
-        } catch (SoapException $ex) {
-            throw new TemplateException('Error while uploading the template', $ex);
+        } catch ( SoapException $ex ) {
+            throw new TemplateException('Error while uploading the template' , $ex);
         }
     }
 
@@ -121,11 +124,11 @@ class Local extends Template
      */
     public function getName($full = false)
     {
-        if (!$full) {
+        if ( ! $full ) {
             return $this->templateName;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->templateName : $this->templateName;
-        return str_replace('//', '/', $filename);
+        return str_replace('//' , '/' , $filename);
     }
 
     /**
@@ -138,9 +141,9 @@ class Local extends Template
     public function getContents()
     {
         try {
-            $fileObj = new SplFileObject($this->getName(true), 'r');
-        } catch (RuntimeException $ex) {
-            throw new FileExistException('The provided file is not readable', $ex);
+            $fileObj = new SplFileObject($this->getName(true) , 'r');
+        } catch ( RuntimeException $ex ) {
+            throw new FileExistException('The provided file is not readable' , $ex);
         }
         return file_get_contents($fileObj->getPathname());
     }
@@ -155,9 +158,9 @@ class Local extends Template
     public function getFormat()
     {
         try {
-            $fileObj = new SplFileObject($this->getName(true), 'r');
-        } catch (RuntimeException $ex) {
-            throw new FileExistException('The provided file is not readable', $ex);
+            $fileObj = new SplFileObject($this->getName(true) , 'r');
+        } catch ( RuntimeException $ex ) {
+            throw new FileExistException('The provided file is not readable' , $ex);
         }
         return $fileObj->getExtension();
     }

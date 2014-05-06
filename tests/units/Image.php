@@ -4,8 +4,8 @@ namespace Awakenweb\Livedocx\tests\units;
 
 require_once '/vendor/autoload.php';
 
-use Awakenweb\Livedocx\Image as LdxImage,
-    Awakenweb\Livedocx\Exceptions,
+use Awakenweb\Livedocx\Image as LdxImage ,
+    Awakenweb\Livedocx\Exceptions ,
     atoum;
 
 class Image extends atoum
@@ -14,12 +14,12 @@ class Image extends atoum
     /**
      * @dataProvider filenamesProvider
      */
-    public function test_setters_and_getters($filename, $dirname, $expectedName, $expectedFullName)
+    public function test_setters_and_getters($filename , $dirname , $expectedName , $expectedFullName)
     {
         $mock = $this->scaffoldMock();
 
         $image = new LdxImage($mock);
-        $image->setFilename($filename, $dirname);
+        $image->setFilename($filename , $dirname);
 
         $this->string($image->getName())
                 ->isEqualTo($expectedName)
@@ -77,9 +77,9 @@ class Image extends atoum
         };
         $mock->getMockController()->backendListArrayToMultiAssocArray = function() {
             return [
-                ['filename' => 'test.jpg', 'filesize' => 123456],
-                ['filename' => 'test2.jpg', 'filesize' => 654321],
-                ['filename' => 'test3.jpg', 'filesize' => 615243]
+                ['filename' => 'test.jpg' , 'filesize' => 123456 ] ,
+                ['filename' => 'test2.jpg' , 'filesize' => 654321 ] ,
+                ['filename' => 'test3.jpg' , 'filesize' => 615243 ]
             ];
         };
 
@@ -100,7 +100,7 @@ class Image extends atoum
         $mock->getMockController()->GetImageImportFormats = function() {
             $r                                      = new \stdClass();
             $r->GetImageImportFormatsResult         = new \stdClass();
-            $r->GetImageImportFormatsResult->string = ['Q', 'b', 'C'];
+            $r->GetImageImportFormatsResult->string = ['Q' , 'b' , 'C' ];
 
             return $r;
         };
@@ -159,7 +159,7 @@ class Image extends atoum
         $mock->getMockController()->GetImageExportFormats = function() {
             $r                                      = new \stdClass();
             $r->GetImageExportFormatsResult         = new \stdClass();
-            $r->GetImageExportFormatsResult->string = ['Q', 'b', 'C'];
+            $r->GetImageExportFormatsResult->string = ['Q' , 'b' , 'C' ];
             return $r;
         };
         $image = new LdxImage($mock);
@@ -214,7 +214,9 @@ class Image extends atoum
         $mock = $this->scaffoldMock();
 
         $mock->getMockController()->ImageExists = function() {
-            return mt_rand(0, 1);
+            $return                    = new \stdClass();
+            $return->ImageExistsResult = mt_rand(0 , 1);
+            return $return;
         };
 
         $image = new LdxImage($mock);
@@ -329,12 +331,12 @@ class Image extends atoum
     {
         $mock = $this->scaffoldMock();
 
-        file_put_contents(__DIR__ . '/test.dat', 'some random content');
+        file_put_contents(__DIR__ . '/test.dat' , 'some random content');
 
         $mock->getMockController()->UploadImage = true;
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test.dat' , __DIR__);
 
         $this->object($image->upload())
                 ->isIdenticalTo($image);
@@ -354,7 +356,7 @@ class Image extends atoum
         };
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test.dat' , __DIR__);
 
         $this->exception(function() use ($image) {
                     $image->upload();
@@ -373,10 +375,10 @@ class Image extends atoum
             throw new Exceptions\SoapException('random exception');
         };
 
-        file_put_contents(__DIR__ . '/test.dat', 'some random content');
+        file_put_contents(__DIR__ . '/test.dat' , 'some random content');
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test.dat' , __DIR__);
 
         $this->exception(function() use ($image) {
                     $image->upload();
@@ -400,8 +402,8 @@ class Image extends atoum
     public function filenamesProvider()
     {
         return [
-            ['testfile.jpg', null, 'testfile.jpg', 'testfile.jpg'],
-            ['thisIsATest.png', '/test/', 'thisIsATest.png', '/test/thisIsATest.png']
+            ['testfile.jpg' , null , 'testfile.jpg' , 'testfile.jpg' ] ,
+            ['thisIsATest.png' , '/test/' , 'thisIsATest.png' , '/test/thisIsATest.png' ]
         ];
     }
 

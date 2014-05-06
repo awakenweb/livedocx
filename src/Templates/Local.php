@@ -26,12 +26,18 @@
 
 namespace Awakenweb\Livedocx\Templates;
 
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use Awakenweb\Livedocx\Exceptions\TemplateException;
+use Awakenweb\Livedocx\Template;
+use RuntimeException;
+use SplFileObject;
+
 /**
  * Description of Local
  *
  * @author Administrateur
  */
-class Local extends Awakenweb\Livedocx\Template
+class Local extends Template
 {
 
     protected $directory;
@@ -49,28 +55,52 @@ class Local extends Awakenweb\Livedocx\Template
     }
 
     /**
+     * Set the local template as active to be used when generating the final document and
+     * upload it
      *
+     * @return Local
+     *
+     * @throws TemplateException
+     */
+    public function setAsActive()
+    {
+        try {
+            $this->getSoapClient()->SetLocalTemplate(array(
+                'template' => $this->getBase64Contents(),
+                'format'   => $this->getFormat(),
+            ));
+            return $this;
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while setting the local template as the active template', $ex);
+        }
+    }
+
+    /**
+     * Upload the local template to Livedocx service and return a new instance of corresponding
+     * remote template
+     *
+     * @return Remote
+     *
+     * @throws TemplateException
      */
     public function upload()
     {
+
+        if (!is_readable($this->getName(true))) {
+            throw new TemplateException('Cannot read local template from disk.');
+        }
         try {
-            if (!is_readable($filename)) {
-                throw new Exception\InvalidArgumentException(
-                'Cannot read local template from disk.'
-                );
-            }
-            try {
-                $this->getSoapClient()->UploadTemplate(array(
-                    'template' => base64_encode(file_get_contents($filename)),
-                    'filename' => basename($filename),
-                ));
-            } catch (\Exception $e) {
-                throw new Exception\RuntimeException(
-                $e->getMessage()
-                );
-            }
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\TemplateException('Error while getting the list of accepted template formats', $ex);
+            $this->getSoapClient()->UploadTemplate(array(
+                'template' => $this->getBase64Contents(),
+                'filename' => basename($this->getName()),
+            ));
+
+            $remoteTemplate = new Remote($this->getSoapClient());
+            $remoteTemplate->setName($this->getName());
+
+            return $remoteTemplate;
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while uploading the template', $ex);
         }
     }
 
@@ -78,8 +108,9 @@ class Local extends Awakenweb\Livedocx\Template
      * Return the name of the template file.
      * If $full parameter is provided, return the full name with path
      *
-     * @param type $full
-     * @return type
+     * @param boolean $full
+     *
+     * @return string
      */
     protected function getName($full = false)
     {
@@ -88,6 +119,55 @@ class Local extends Awakenweb\Livedocx\Template
         }
         $filename = $this->directory ? $this->directory . '/' . $this->templateName : $this->templateName;
         return str_replace('//', '/', $filename);
+    }
+
+    /**
+     * Return the contents of the whole template file
+     *
+     * @return string
+     *
+     * @throws TemplateException
+     */
+    protected function getContents()
+    {
+        try {
+            $fileObj = new SplFileObject($this->getName(true), 'r');
+        } catch (RuntimeException $ex) {
+            throw new TemplateException('The provided file is not readable', $ex);
+        }
+        $result = file_get_contents($fileObj->getPathname());
+        if ($result === true) {
+            return $result;
+        }
+    }
+
+    /**
+     * Return the content of the template as a base64 encoded string
+     *
+     * @return string
+     *
+     * @throws TemplateException @see Local::getContents
+     */
+    protected function getBase64Contents()
+    {
+        return base64_encode($this->getContents());
+    }
+
+    /**
+     * Return the format of the file
+     *
+     * @return type
+     *
+     * @throws TemplateException
+     */
+    protected function getFormat()
+    {
+        try {
+            $fileObj = new SplFileObject($this->getName(true), 'r');
+        } catch (RuntimeException $ex) {
+            throw new TemplateException('The provided file is not readable', $ex);
+        }
+        return $fileObj->getExtension();
     }
 
 }

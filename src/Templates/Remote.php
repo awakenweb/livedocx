@@ -26,13 +26,39 @@
 
 namespace Awakenweb\Livedocx\Templates;
 
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use Awakenweb\Livedocx\Exceptions\TemplateException;
+use Awakenweb\Livedocx\Template;
+
 /**
  * Description of Remote
  *
  * @author Administrateur
  */
-class Remote extends Awakenweb\Livedocx\Template
+class Remote extends Template
 {
+
+    /**
+     * Set the remote template as active to be used when generating the final document
+     *
+     * @return Remote
+     *
+     * @throws TemplateException
+     */
+    public function setAsActive()
+    {
+        try {
+            $this->getSoapClient()->SetRemoteTemplate(['filename' => $this->getName()]);
+            return $this;
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while setting the remote template as the active template', $ex);
+        }
+    }
+
+    protected function getName()
+    {
+        return $this->templateName;
+    }
 
     /**
      * Check if a remote template exists on the Livedocx service
@@ -41,22 +67,47 @@ class Remote extends Awakenweb\Livedocx\Template
      */
     public function exists()
     {
-        $result = $this->soapClient->templateExists(['filename' => $this->templateName]);
-
-        return boolval($result->TemplateExistsResult);
+        try {
+            $result = $this->soapClient->templateExists(['filename' => $this->getName()]);
+            return boolval($result->TemplateExistsResult);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while verifying the existence of a remote template', $ex);
+        }
     }
 
     /**
+     * Download a remote template from the Livedocx service
      *
+     * @throws TemplateException
      */
     public function download()
     {
-
+        try {
+            $result = $this->getSoapClient()->DownloadTemplate(array(
+                'filename' => basename($this->getName())));
+            return base64_decode($result->DownloadTemplateResult);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while downloading the remote template from Livedocx service', $ex);
+        }
     }
 
+    /**
+     * Delete a remote template from the Livedocx service
+     *
+     * @return \Awakenweb\Livedocx\Templates\Remote
+     *
+     * @throws TemplateException
+     */
     public function delete()
     {
-
+        try {
+            $this->getSoapClient()->DeleteTemplate(array(
+                'filename' => basename($this->getName())
+            ));
+            return $this;
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while deleting the remote template from Livedocx service', $ex);
+        }
     }
 
 }

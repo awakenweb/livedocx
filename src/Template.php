@@ -26,6 +26,9 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use Awakenweb\Livedocx\Exceptions\TemplateException;
+
 /**
  * Description of Template
  *
@@ -48,42 +51,58 @@ abstract class Template
      */
     protected $remote = false;
 
+    /**
+     * Set the filename of the template
+     *
+     * @param string $template_name
+     */
     public function setName($template_name)
     {
         $this->templateName = $template_name;
     }
 
+    /**
+     * Return a list of all the accepted template formats you can use to generate your document
+     *
+     * @return array
+     *
+     * @throws TemplateException
+     */
     public function getAcceptedTemplateFormats()
     {
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetTemplateFormats();
-
             if (isset($result->GetTemplateFormatsResult->string)) {
                 $ret = $result->GetTemplateFormatsResult->string;
                 $ret = array_map('strtolower', $ret);
             }
-
             return $ret;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\TemplateException('Error while getting the list of accepted template formats', $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of accepted template formats', $ex);
         }
     }
 
+    /**
+     * Return a list of all available return formats you can ask for when generating the
+     * document
+     *
+     * @return array
+     *
+     * @throws TemplateException
+     */
     public function getAvailableDocumentFormats()
     {
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetDocumentFormats();
-
             if (isset($result->GetDocumentFormatsResult->string)) {
                 $ret = $result->GetDocumentFormatsResult->string;
                 $ret = array_map('strtolower', $ret);
             }
-
             return $ret;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\TemplateException('Error while getting the list of available document formats', $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of available document formats', $ex);
         }
     }
 
@@ -92,30 +111,43 @@ abstract class Template
      *
      * @return type
      *
-     * @throws Exceptions\TemplateException
+     * @throws TemplateException
      */
     public function getAvailableFonts()
     {
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetFontNames();
-
             if (isset($result->GetFontNamesResult->string)) {
                 $ret = $result->GetFontNamesResult->string;
             }
-
             return $ret;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\TemplateException('Error while getting the list of available fonts', $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of available fonts', $ex);
         }
     }
 
-    public function ignoreSubTemplate($subtemplate)
+    /**
+     * Tell the Livedocx service to ignore included subtemplates when generating the final
+     * document
+     *
+     * @param boolean $state
+     *
+     * @return Template
+     *
+     * @throws TemplateException
+     */
+    public function ignoreSubTemplates($state = true)
     {
+        if (!is_bool($state)) {
+            throw new TemplateException('ignoreSubTemplates expects its parameter to be a boolean');
+        }
         try {
-            return $this;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\TemplateException("Error while ignoring a subtemplate : '$subtemplate'", $ex);
+            $this->getSoapClient()->SetIgnoreSubTemplates(array(
+                'ignoreSubTemplates' => $state,
+            ));
+        } catch (SoapException $ex) {
+            throw new TemplateException("Error while telling the server to ignore subtemplates", $ex);
         }
     }
 
@@ -124,16 +156,26 @@ abstract class Template
      *
      * @param array $subtemplates_list
      *
-     * @return \Awakenweb\Livedocx\Template
+     * @return Template
      *
-     * @throws Exceptions\TemplateException @see Template::ignoreSubTemplate
+     * @throws TemplateException
      */
-    public function ignoreSubTemplates(array $subtemplates_list)
+    public function ignoreListOfSubTemplates(array $subtemplates_list)
     {
-        foreach ($subtemplates_list as $subtemplate) {
-            $this->ignoreSubTemplate($subtemplate);
+        if (!is_array($subtemplates_list)) {
+            throw new TemplateException('filenames must be an array.');
         }
-        return $this;
+        $filenames = array_values($subtemplates_list);
+        try {
+            $this->getSoapClient()->SetSubTemplateIgnoreList(array(
+                'filenames' => $filenames,
+            ));
+        } catch (SoapException $ex) {
+            throw new TemplateException("Error while telling the server to ignore a list of subtemplates", $ex);
+        }
     }
 
+    protected abstract function getName();
+
+    public abstract function setAsActive();
 }

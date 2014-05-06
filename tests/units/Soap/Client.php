@@ -28,8 +28,10 @@ namespace Awakenweb\Livedocx\tests\units\Soap;
 
 require_once '/vendor/autoload.php';
 
-use Awakenweb\Livedocx\Soap\Client as LdxClient ,
-    atoum;
+use atoum;
+use Awakenweb\Livedocx\Soap\Client as LdxClient;
+use SoapFault;
+use stdClass;
 
 /**
  * Description of Client
@@ -41,10 +43,7 @@ class Client extends atoum
 
     public function test_proxy()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\SoapClient('');
+        $mock = $this->scaffoldMock();
 
         $mock->getMockController()->testMethod = function() {
             return true;
@@ -56,15 +55,12 @@ class Client extends atoum
                 ->mock($mock)->call('testMethod')->once();
     }
 
-    public function test_proxy_method_throws_Exception()
+    public function test_proxy_method_throw_exception()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-
-        $mock = new \mock\SoapClient('');
+        $mock = $this->scaffoldMock();
 
         $mock->getMockController()->testMethod = function() {
-            throw new \SoapFault('test' , 'test exception');
+            throw new SoapFault('test' , 'test exception');
         };
 
         $ldxclient = new LdxClient($mock);
@@ -76,12 +72,9 @@ class Client extends atoum
                 ->hasMessage('Error while querying the SOAP server');
     }
 
-    public function test_assocArrayToArrayOfArrayOfString_returns_an_array_of_array_of_strings()
+    public function test_assocArrayToArrayOfArrayOfString_return_an_array_of_array_of_strings()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\SoapClient('');
-
+        $mock      = $this->scaffoldMock();
         $ldxclient = new LdxClient($mock);
 
         $result = $ldxclient->assocArrayToArrayOfArrayOfString([ 'firstKey' => 'firstValue' , 'secondKey' => 'secondValue' ]);
@@ -93,14 +86,12 @@ class Client extends atoum
                 ->containsValues([ 'firstValue' , 'secondValue' ]);
     }
 
-    public function test_multiAssocArrayToArrayOfArrayOfString_returns_an_array_of_array_of_strings()
+    public function test_multiAssocArrayToArrayOfArrayOfString_return_an_array_of_array_of_strings()
     {
-        $this->mockGenerator->orphanize('__construct');
-        $this->mockGenerator->shuntParentClassCalls();
-        $mock = new \mock\SoapClient('');
-
+        $mock      = $this->scaffoldMock();
         $ldxclient = new LdxClient($mock);
-        $result    = $ldxclient->multiAssocArrayToArrayOfArrayOfString([
+
+        $result = $ldxclient->multiAssocArrayToArrayOfArrayOfString([
             ['firstKey' => 'firstValue1' , 'secondKey' => 'secondValue1' , 'thirdKey' => 'thirdValue1' ] ,
             ['firstKey' => 'firstValue2' , 'secondKey' => 'secondValue2' , 'thirdKey' => 'thirdValue2' ] ,
             ['firstKey' => 'firstValue3' , 'secondKey' => 'secondValue3' , 'thirdKey' => 'thirdValue3' ]
@@ -115,6 +106,91 @@ class Client extends atoum
                 ->strictlyContainsValues([ 'firstValue2' , 'secondValue2' , 'thirdValue2' ])
                 ->array($result[ 3 ])
                 ->strictlyContainsValues([ 'firstValue3' , 'secondValue3' , 'thirdValue3' ]);
+    }
+
+    public function test_backendListArrayToMultiAssocArray_return_empty_array_when_empty_parameter()
+    {
+        $mock   = $this->scaffoldMock();
+        $client = new LdxClient($mock);
+
+        $this->array($client->backendListArrayToMultiAssocArray(new stdClass()))
+                ->isEmpty();
+    }
+
+    public function test_backendListArrayToMultiAssocArray_return_array_when_multiple_String_values()
+    {
+        $mock = $this->scaffoldMock();
+
+        $client = new LdxClient($mock);
+
+        $test = new stdClass();
+
+        $test->ArrayOfString = [ ];
+
+        for ( $i = 0; $i < 10; $i ++ ) {
+            $newclass         = new stdClass();
+            $newclass->string = [
+                'testValue' ,
+                date(DATE_RFC1123 , 1) ,
+                ( string ) 123456 ,
+                date(DATE_RFC1123 , 1) ,
+            ];
+
+            $test->ArrayOfString[] = $newclass;
+        }
+
+        $returnValue = $client->backendListArrayToMultiAssocArray($test);
+        $this->array($returnValue)
+                ->size
+                ->isEqualTo(10);
+
+        foreach ( $returnValue as $value ) {
+            $this->array($value)
+                    ->hasKeys([ 'filename' , 'fileSize' , 'createTime' , 'modifyTime' ])
+                    ->containsValues([ 'testValue' , 1 , 123456 ]);
+        }
+    }
+
+    public function test_backendListArrayToMultiAssocArray_return_array_when_only_one_String_value()
+    {
+        $mock = $this->scaffoldMock();
+
+        $client = new LdxClient($mock);
+
+        $test = new stdClass();
+
+        $test->ArrayOfString = [
+            [
+                'testValue' ,
+                date(DATE_RFC1123 , 1) ,
+                ( string ) 123456 ,
+                date(DATE_RFC1123 , 1) ,
+            ]
+        ];
+
+        $returnValue = $client->backendListArrayToMultiAssocArray($test);
+        $this->array($returnValue)
+                ->size
+                ->isEqualTo(1);
+
+        $this->array($returnValue[ 0 ])
+                ->hasKeys([ 'filename' , 'fileSize' , 'createTime' , 'modifyTime' ])
+                ->containsValues([ 'testValue' , 1 , 123456 ]);
+    }
+
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = -                               DATA PROVIDERS                              - = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+
+    protected function scaffoldMock()
+    {
+        $this->mockGenerator->orphanize('__construct');
+        $this->mockGenerator->shuntParentClassCalls();
+        $mock = new \mock\SoapClient('');
+
+        return $mock;
     }
 
 }

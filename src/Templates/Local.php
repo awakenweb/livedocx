@@ -26,6 +26,7 @@
 
 namespace Awakenweb\Livedocx\Templates;
 
+use Awakenweb\Livedocx\Exceptions\FileExistException;
 use Awakenweb\Livedocx\Exceptions\SoapException;
 use Awakenweb\Livedocx\Exceptions\TemplateException;
 use Awakenweb\Livedocx\Template;
@@ -55,8 +56,8 @@ class Local extends Template
     }
 
     /**
-     * Set the local template as active to be used when generating the final document and
-     * upload it
+     * Set the local template as active and upload it to be used when generating the final
+     * document
      *
      * @return Local
      *
@@ -65,11 +66,17 @@ class Local extends Template
     public function setAsActive()
     {
         try {
+            $templatecontent = $this->getBase64Contents();
+            $format          = $this->getFormat();
+        } catch (FileExistException $ex) {
+            throw new TemplateException('Template file does not exist or is not readable', $ex);
+        }
+
+        try {
             $this->getSoapClient()->SetLocalTemplate(array(
-                'template' => $this->getBase64Contents(),
-                'format'   => $this->getFormat(),
+                'template' => $templatecontent,
+                'format'   => $format
             ));
-            return $this;
         } catch (SoapException $ex) {
             throw new TemplateException('Error while setting the local template as the active template', $ex);
         }
@@ -112,7 +119,7 @@ class Local extends Template
      *
      * @return string
      */
-    protected function getName($full = false)
+    public function getName($full = false)
     {
         if (!$full) {
             return $this->templateName;
@@ -128,17 +135,31 @@ class Local extends Template
      *
      * @throws TemplateException
      */
-    protected function getContents()
+    public function getContents()
     {
         try {
             $fileObj = new SplFileObject($this->getName(true), 'r');
         } catch (RuntimeException $ex) {
-            throw new TemplateException('The provided file is not readable', $ex);
+            throw new FileExistException('The provided file is not readable', $ex);
         }
-        $result = file_get_contents($fileObj->getPathname());
-        if ($result === true) {
-            return $result;
+        return file_get_contents($fileObj->getPathname());
+    }
+
+    /**
+     * Return the format of the file
+     *
+     * @return string
+     *
+     * @throws TemplateException
+     */
+    public function getFormat()
+    {
+        try {
+            $fileObj = new SplFileObject($this->getName(true), 'r');
+        } catch (RuntimeException $ex) {
+            throw new FileExistException('The provided file is not readable', $ex);
         }
+        return $fileObj->getExtension();
     }
 
     /**
@@ -151,23 +172,6 @@ class Local extends Template
     protected function getBase64Contents()
     {
         return base64_encode($this->getContents());
-    }
-
-    /**
-     * Return the format of the file
-     *
-     * @return type
-     *
-     * @throws TemplateException
-     */
-    protected function getFormat()
-    {
-        try {
-            $fileObj = new SplFileObject($this->getName(true), 'r');
-        } catch (RuntimeException $ex) {
-            throw new TemplateException('The provided file is not readable', $ex);
-        }
-        return $fileObj->getExtension();
     }
 
 }

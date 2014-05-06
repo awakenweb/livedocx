@@ -74,7 +74,7 @@ abstract class Template
             $ret    = array();
             $result = $this->getSoapClient()->ListTemplates();
             if (isset($result->ListTemplatesResult)) {
-                $ret = $this->_backendListArrayToMultiAssocArray($result->ListTemplatesResult);
+                $ret = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListTemplatesResult);
             }
             return $ret;
         } catch (SoapException $ex) {
@@ -167,6 +167,7 @@ abstract class Template
             $this->getSoapClient()->SetIgnoreSubTemplates(array(
                 'ignoreSubTemplates' => $state,
             ));
+            return $this;
         } catch (SoapException $ex) {
             throw new TemplateException("Error while telling the server to ignore subtemplates", $ex);
         }
@@ -181,7 +182,7 @@ abstract class Template
      *
      * @throws TemplateException
      */
-    public function ignoreListOfSubTemplates(array $subtemplates_list)
+    public function ignoreListOfSubTemplates($subtemplates_list)
     {
         if (!is_array($subtemplates_list)) {
             throw new TemplateException('filenames must be an array.');
@@ -191,12 +192,13 @@ abstract class Template
             $this->getSoapClient()->SetSubTemplateIgnoreList(array(
                 'filenames' => $filenames,
             ));
+            return $this;
         } catch (SoapException $ex) {
             throw new TemplateException("Error while telling the server to ignore a list of subtemplates", $ex);
         }
     }
 
-    protected abstract function getName();
+    public abstract function getName();
 
     public abstract function setAsActive();
 }

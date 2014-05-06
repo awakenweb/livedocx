@@ -55,7 +55,7 @@ class Remote extends Template
         }
     }
 
-    protected function getName()
+    public function getName()
     {
         return $this->templateName;
     }

@@ -77,6 +77,8 @@ class Local extends Template
                 'template' => $templatecontent ,
                 'format'   => $format
             ]);
+            $this->isActive = true;
+            return $this;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while setting the local template as the active template' , $ex);
         }

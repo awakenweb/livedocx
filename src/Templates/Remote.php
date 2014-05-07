@@ -54,6 +54,7 @@ class Remote extends Template
 
         try {
             $this->getSoapClient()->SetRemoteTemplate(['filename' => $this->getName() ]);
+            $this->isActive = true;
             return $this;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while setting the remote template as the active template' , $ex);

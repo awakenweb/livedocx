@@ -131,18 +131,31 @@ class Livedocx
     }
 
     /**
+     * Assign a value to a field
      *
-     * @param string $fieldname
-     * @param string|integer|float $value
+     * @param type $fieldname
+     * @param type $value
+     * 
+     * @return \Awakenweb\Livedocx\Livedocx
      */
     public function assign($fieldname , $value)
     {
         $this->fields[ $fieldname ] = $value;
+
+        return $this;
     }
 
+    /**
+     * Add a repeat block to the values
+     *
+     * @param \Awakenweb\Livedocx\Block $block
+     *
+     * @return \Awakenweb\Livedocx\Livedocx
+     */
     public function addBlock(Block $block)
     {
-
+        $this->blocks = $block;
+        return $this;
     }
 
     /**

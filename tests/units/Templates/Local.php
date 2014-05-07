@@ -50,6 +50,7 @@ class Local extends atoum
                     $local->listAll();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while getting the list of all uploaded templates')
                 ->hasNestedException();
     }
 
@@ -130,6 +131,7 @@ class Local extends atoum
                     $local->getAcceptedTemplateFormats();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while getting the list of accepted template formats')
                 ->hasNestedException();
     }
 
@@ -168,6 +170,7 @@ class Local extends atoum
                     $local->getAvailableDocumentFormats();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while getting the list of available document formats')
                 ->hasNestedException();
     }
 
@@ -206,6 +209,7 @@ class Local extends atoum
                     $local->getAvailableFonts();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while getting the list of available fonts')
                 ->hasNestedException();
     }
 
@@ -244,6 +248,7 @@ class Local extends atoum
                     $local->ignoreSubTemplates();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while telling the server to ignore subtemplates')
                 ->hasNestedException();
     }
 
@@ -261,7 +266,8 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->ignoreSubTemplates('random string');
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException');
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('ignoreSubTemplates expects its parameter to be a boolean');
     }
 
     /**
@@ -299,6 +305,7 @@ class Local extends atoum
                     $local->ignoreListOfSubTemplates(['random value' , 'test' ]);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while telling the server to ignore a list of subtemplates')
                 ->hasNestedException();
     }
 
@@ -316,7 +323,130 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->ignoreListOfSubTemplates(1234567890);
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException');
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('List of subtemplate filenames must be an array');
+    }
+
+    /**
+     *
+     */
+    public function test_getFieldNames_throw_exception_when_template_is_not_active()
+    {
+        $mock = $this->scaffoldMock();
+
+        $local = new LdxLocal($mock);
+
+        $this->exception(function() use ($local) {
+                    $local->getFieldNames();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('You can only get the field names of the active template');
+    }
+
+    public function test_getFieldNames_throw_exception_when_soap_error_occurs()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetLocalTemplate = true;
+        $mock->getMockController()->GetFieldNames    = function() {
+            throw new SoapException('random exception');
+        };
+
+        $local = new LdxLocal($mock);
+
+        if ( file_exists(__DIR__ . '/test.dat') ) {
+            unlink(__DIR__ . '/test.dat');
+        }
+        file_put_contents(__DIR__ . '/test.dat' , 'random content');
+        $local->setName('test.dat' , __DIR__);
+
+        $this->exception(function() use ($local) {
+                    $local->setAsActive();
+                    $local->getFieldNames(['random value' , 'test' ]);
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->hasMessage('Error while getting the list of all fields in the active template')
+                ->hasNestedException();
+
+        unlink(__DIR__ . '/test.dat');
+    }
+
+    public function test_getFieldNames_return_empty_array()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetLocalTemplate = true;
+        $mock->getMockController()->GetFieldNames    = function() {
+            return new \stdClass();
+        };
+
+        $local = new LdxLocal($mock);
+
+        if ( file_exists(__DIR__ . '/test.dat') ) {
+            unlink(__DIR__ . '/test.dat');
+        }
+        file_put_contents(__DIR__ . '/test.dat' , 'random content');
+        $local->setName('test.dat' , __DIR__);
+        $local->setAsActive();
+
+        $this->array($local->getFieldNames())
+                ->isEmpty();
+
+        unlink(__DIR__ . '/test.dat');
+    }
+
+    public function test_getFieldNames_return_array_with_an_array()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetLocalTemplate = true;
+        $mock->getMockController()->GetFieldNames    = function() {
+            $ret                              = new \stdClass();
+            $ret->GetFieldNamesResult         = new \stdClass();
+            $ret->GetFieldNamesResult->string = [ 'value' , 'value2' , 'value3' ];
+            return $ret;
+        };
+
+        $local = new LdxLocal($mock);
+
+        if ( file_exists(__DIR__ . '/test.dat') ) {
+            unlink(__DIR__ . '/test.dat');
+        }
+        file_put_contents(__DIR__ . '/test.dat' , 'random content');
+        $local->setName('test.dat' , __DIR__);
+        $local->setAsActive();
+
+        $this->array($local->getFieldNames())
+                ->containsValues([ 'value' , 'value2' , 'value3' ]);
+
+        unlink(__DIR__ . '/test.dat');
+    }
+
+    public function test_getFieldNames_return_array_with_a_string()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetLocalTemplate = true;
+        $mock->getMockController()->GetFieldNames    = function() {
+            $ret                              = new \stdClass();
+            $ret->GetFieldNamesResult         = new \stdClass();
+            $ret->GetFieldNamesResult->string = 'value';
+            return $ret;
+        };
+
+        $local = new LdxLocal($mock);
+
+        if ( file_exists(__DIR__ . '/test.dat') ) {
+            unlink(__DIR__ . '/test.dat');
+        }
+        file_put_contents(__DIR__ . '/test.dat' , 'random content');
+        $local->setName('test.dat' , __DIR__);
+        $local->setAsActive();
+
+        $this->array($local->getFieldNames())
+                ->containsValues([ 'value' ]);
+
+        unlink(__DIR__ . '/test.dat');
     }
 
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */

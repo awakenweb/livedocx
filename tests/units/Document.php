@@ -4,55 +4,67 @@ namespace Awakenweb\Livedocx\tests\units;
 
 require_once '/vendor/autoload.php';
 
-use Awakenweb\Livedocx\Document as LDXDocument;
 use atoum;
+use Awakenweb\Livedocx\Document as LDXDocument;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use stdClass;
 
 class Document extends atoum
 {
 
     /**
-     * @dataProvider fakeValuesForDocument
+     *
      */
-    public function test_new_document_throws_exceptions_with_invalid_parameters($value)
+    public function test_getAvailableFormats_return_array()
     {
 
-        $this->exception(function () use ($value) {
-                    $doc = new LDXDocument($value , 'random string');
-                })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
-                ->hasMessage('The name of the document must be a non empty string');
+        $mock = $this->scaffoldMock();
 
-        $this->exception(function () use ($value) {
-                    $doc = new LDXDocument('randomName.txt' , $value);
-                })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
-                ->hasMessage('The data of the document must be a non empty string');
+        $mock->getMockController()->GetDocumentFormats = function() {
+            $r                                   = new stdClass();
+            $r->GetDocumentFormatsResult         = new stdClass();
+            $r->GetDocumentFormatsResult->string = ['Q', 'b', 'C'];
+
+            return $r;
+        };
+        $document = new LDXDocument($mock);
+        $this->array($document->getAvailableFormats())
+                ->containsValues(['q', 'b', 'c']);
     }
 
     /**
-     * @dataProvider fakeValuesForDocument
+     *
      */
-    public function test_save_document_throws_exceptions_with_invalid_parameters($destination)
+    public function test_getAvailableFormats_throw_exceptions_when_soap_error_occurs()
     {
-        $doc = new LDXDocument('test.txt' , 'This is a test purpose only string');
+        $mock = $this->scaffoldMock();
 
-        $this->exception(function () use ($doc , $destination) {
-                    $doc->save($destination);
+        $mock->getMockController()->GetDocumentFormats = function() {
+            throw new SoapException('random exception');
+        };
+
+        $document = new LDXDocument($mock);
+        $this->exception(function() use ($document) {
+                    $document->getAvailableFormats();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
-                ->hasMessage('The destination directory of the document must be a non empty string');
+                ->hasMessage('Error while getting the list of available document formats')
+                ->hasNestedException();
     }
 
-    /* --- DATA PROVIDERS --- */
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = -                               DATA PROVIDERS                              - = */
+    /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
+    /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
 
-    public function fakeValuesForDocument()
+    protected function scaffoldMock()
     {
-        return [
-            ['' ] ,
-            [null ] ,
-            [new \StdClass() ] ,
-            [1234567890 ]
-        ];
+        $this->mockGenerator->orphanize('__construct');
+        $this->mockGenerator->shuntParentClassCalls();
+        $mock = new \mock\Awakenweb\Livedocx\Soap\Client();
+
+        return $mock;
     }
 
 }

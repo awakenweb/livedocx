@@ -73,12 +73,12 @@ abstract class Template
         try {
             $ret    = array();
             $result = $this->getSoapClient()->ListTemplates();
-            if ( isset($result->ListTemplatesResult) ) {
+            if (isset($result->ListTemplatesResult)) {
                 $ret = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListTemplatesResult);
             }
             return $ret;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while getting the list of all uploaded templates' , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of all uploaded templates', $ex);
         }
     }
 
@@ -94,36 +94,13 @@ abstract class Template
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetTemplateFormats();
-            if ( isset($result->GetTemplateFormatsResult->string) ) {
+            if (isset($result->GetTemplateFormatsResult->string)) {
                 $ret = $result->GetTemplateFormatsResult->string;
-                $ret = array_map('strtolower' , $ret);
+                $ret = array_map('strtolower', $ret);
             }
             return $ret;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while getting the list of accepted template formats' , $ex);
-        }
-    }
-
-    /**
-     * Return a list of all available return formats you can ask for when generating the
-     * document
-     *
-     * @return array
-     *
-     * @throws TemplateException
-     */
-    public function getAvailableDocumentFormats()
-    {
-        try {
-            $ret    = array();
-            $result = $this->getSoapClient()->GetDocumentFormats();
-            if ( isset($result->GetDocumentFormatsResult->string) ) {
-                $ret = $result->GetDocumentFormatsResult->string;
-                $ret = array_map('strtolower' , $ret);
-            }
-            return $ret;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while getting the list of available document formats' , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of accepted template formats', $ex);
         }
     }
 
@@ -139,12 +116,12 @@ abstract class Template
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetFontNames();
-            if ( isset($result->GetFontNamesResult->string) ) {
+            if (isset($result->GetFontNamesResult->string)) {
                 $ret = $result->GetFontNamesResult->string;
             }
             return $ret;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while getting the list of available fonts' , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of available fonts', $ex);
         }
     }
 
@@ -160,16 +137,16 @@ abstract class Template
      */
     public function ignoreSubTemplates($state = true)
     {
-        if ( ! is_bool($state) ) {
+        if (!is_bool($state)) {
             throw new TemplateException('ignoreSubTemplates expects its parameter to be a boolean');
         }
         try {
             $this->getSoapClient()->SetIgnoreSubTemplates(array(
-                'ignoreSubTemplates' => $state ,
+                'ignoreSubTemplates' => $state,
             ));
             return $this;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException("Error while telling the server to ignore subtemplates" , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException("Error while telling the server to ignore subtemplates", $ex);
         }
     }
 
@@ -184,17 +161,17 @@ abstract class Template
      */
     public function ignoreListOfSubTemplates($subtemplates_list)
     {
-        if ( ! is_array($subtemplates_list) ) {
+        if (!is_array($subtemplates_list)) {
             throw new TemplateException('List of subtemplate filenames must be an array');
         }
         $filenames = array_values($subtemplates_list);
         try {
             $this->getSoapClient()->SetSubTemplateIgnoreList(array(
-                'filenames' => $filenames ,
+                'filenames' => $filenames,
             ));
             return $this;
-        } catch ( SoapException $ex ) {
-            throw new TemplateException("Error while telling the server to ignore a list of subtemplates" , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException("Error while telling the server to ignore a list of subtemplates", $ex);
         }
     }
 
@@ -207,7 +184,7 @@ abstract class Template
      */
     public function getFieldNames()
     {
-        if ( ! $this->isActive ) {
+        if (!$this->isActive) {
             throw new TemplateException('You can only get the field names of the active template');
         }
 
@@ -215,12 +192,12 @@ abstract class Template
 
         try {
             $result = $this->getSoapClient()->GetFieldNames();
-        } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while getting the list of all fields in the active template' , $ex);
+        } catch (SoapException $ex) {
+            throw new TemplateException('Error while getting the list of all fields in the active template', $ex);
         }
 
-        if ( isset($result->GetFieldNamesResult->string) ) {
-            if ( is_array($result->GetFieldNamesResult->string) ) {
+        if (isset($result->GetFieldNamesResult->string)) {
+            if (is_array($result->GetFieldNamesResult->string)) {
                 $ret = $result->GetFieldNamesResult->string;
             } else {
                 $ret[] = $result->GetFieldNamesResult->string;

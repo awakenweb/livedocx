@@ -26,46 +26,112 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\DocumentException;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
  */
 class Document
 {
 
+    use Soap\HasSoapClient;
+
     protected $data;
     protected $name;
 
     /**
-     * Create a new instance of document containing data and a type
+     * Return a list of all available return formats you can ask for when generating the
+     * document
      *
-     * @param string $name
-     * @param string $data
+     * @return array
+     *
+     * @throws DocumentException
      */
-    public function __construct($name , $data)
+    public function getAvailableFormats()
     {
-        if ( ! is_string($name) || $name === '' ) {
-            throw new Exceptions\DocumentException('The name of the document must be a non empty string');
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->GetDocumentFormats();
+            if (isset($result->GetDocumentFormatsResult->string)) {
+                $ret = $result->GetDocumentFormatsResult->string;
+                $ret = array_map('strtolower', $ret);
+            }
+            return $ret;
+        } catch (SoapException $ex) {
+            throw new DocumentException('Error while getting the list of available document formats', $ex);
         }
-        if ( ! is_string($data) || $data === '' ) {
-            throw new Exceptions\DocumentException('The data of the document must be a non empty string');
-        }
-        $this->name = $name;
-        $this->data = $data;
     }
 
-    /**
+    /*
+      public function create()
+      {
+
+      }
+
+      public function retrieve($format)
+      {
+
+      }
+
+      public function setPassword()
+      {
+
+      }
+
+      public function setPermissions()
+      {
+
+      }
+
+      public function getMetaFiles($from = null, $to = null)
+      {
+
+      }
+
+      public function getAsBitmaps($zoomfactor, $format, $from = null, $to = null)
+      {
+
+      }
+
+      public function share()
+      {
+
+      }
+
+      public function listAllShared()
+      {
+
+      }
+
+      public function deleteShared()
+      {
+
+      }
+
+      public function downloadShared()
+      {
+
+      }
+
+      public function isShared()
+      {
+
+      }
+
+      /**
      * Save the document to the destination
      *
      * @param string $destination_dir
      */
-    public function save($destination_dir)
-    {
-        if ( is_null($destination_dir) || ! is_string($destination_dir) || $destination_dir === '' ) {
-            throw new Exceptions\DocumentException('The destination directory of the document must be a non empty string');
-        }
-        if ( false === file_put_contents($destination_dir . $this->name , $this->data) ) {
-            throw new Exceptions\DocumentException('An error has occured while saving the document');
-        }
-    }
-
+    /* public function save($destination_dir)
+      {
+      if (is_null($destination_dir) || !is_string($destination_dir) || $destination_dir === '') {
+      throw new DocumentException('The destination directory of the document must be a non empty string');
+      }
+      if (false === file_put_contents($destination_dir . $this->name, $this->data)) {
+      throw new DocumentException('An error has occured while saving the document');
+      }
+      }
+     */
 }

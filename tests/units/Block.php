@@ -145,6 +145,84 @@ class Block extends atoum
                 ->containsValues(['value1' ]);
     }
 
+    /**
+     *
+     */
+    public function test_getFieldNames_throw_exception_when_soap_error_occurs()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->GetBlockFieldNames = function() {
+            throw new SoapException('random exception');
+        };
+
+        $block = new LDXBlock($mock);
+
+        $this->exception(function () use ($block) {
+                    $block->getFieldNames();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\BlockException')
+                ->hasMessage('Error while getting the list of all fields in this block')
+                ->hasNestedException();
+    }
+
+    /**
+     *
+     */
+    public function test_getFieldNames_return_empty_array_when_no_fields()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->GetBlockFieldNames = function() {
+            return new stdClass();
+        };
+
+        $block = new LDXBlock($mock);
+
+        $this->array($block->getFieldNames())
+                ->isEmpty();
+    }
+
+    /**
+     *
+     */
+    public function test_getFieldNames_return_array_when_an_array()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->GetBlockFieldNames = function() {
+            $ret                                   = new stdClass();
+            $ret->GetBlockFieldNamesResult         = new stdClass();
+            $ret->GetBlockFieldNamesResult->string = ['value1' , 'value2' ];
+            return $ret;
+        };
+
+        $block = new LDXBlock($mock);
+
+        $this->array($block->getFieldNames())
+                ->containsValues(['value1' , 'value2' ]);
+    }
+
+    /**
+     *
+     */
+    public function test_getFieldNames_return_array_when_a_string()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->GetBlockFieldNames = function() {
+            $ret                                   = new stdClass();
+            $ret->GetBlockFieldNamesResult         = new stdClass();
+            $ret->GetBlockFieldNamesResult->string = 'value1';
+            return $ret;
+        };
+
+        $block = new LDXBlock($mock);
+
+        $this->array($block->getFieldNames())
+                ->containsValues(['value1' ]);
+    }
+
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
     /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
     /* = -                               DATA PROVIDERS                              - = */

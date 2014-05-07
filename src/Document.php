@@ -39,6 +39,7 @@ class Document
 
     protected $data;
     protected $name;
+    protected $format;
 
     /**
      * Return a list of all available return formats you can ask for when generating the
@@ -63,26 +64,94 @@ class Document
         }
     }
 
+    /**
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     *
+     * @param string $format
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+    }
+
+    /**
+     * Set a password for the generated document
+     *
+     * @param string $password
+     * @throws DocumentException
+     */
+    public function setPassword($password)
+    {
+        try {
+            $this->getSoapClient()->SetDocumentPassword(array(
+                'password' => $password,
+            ));
+        } catch (SoapException $e) {
+            throw new DocumentException('Error while setting a password for the document', $e);
+        }
+    }
+
+    /**
+     * Set a master password and a list of features accessible without this password
+     *
+     * @param array $permissions
+     * @param string $password
+     *
+     * @throws DocumentException
+     */
+    public function setPermissions($permissions, $password)
+    {
+        try {
+            $this->getSoapClient()->SetDocumentAccessPermissions(array(
+                'permissions' => $permissions,
+                'password'    => $password,
+            ));
+        } catch (SoapException $e) {
+            throw new DocumentException('Error while setting the list of permissions and master password for the document', $e);
+        }
+    }
+
+    /**
+     * Return a list of permissions you can use in setPermissions
+     */
+    public function getAccessOptions()
+    {
+        try {
+            $ret    = array();
+            $result = $this->getSoapClient()->GetDocumentAccessOptions();
+            if (isset($result->GetDocumentAccessOptionsResult->string)) {
+                $ret = $result->GetDocumentAccessOptionsResult->string;
+            }
+            return $ret;
+        } catch (SoapException $e) {
+            throw new DocumentException('Error while getting the list of available permissions for the document', $e);
+        }
+    }
+
     /*
+     *
+     *
+
+
       public function create()
       {
 
       }
 
-      public function retrieve($format)
+      public function retrieve($format = null)
       {
 
       }
 
-      public function setPassword()
-      {
 
-      }
-
-      public function setPermissions()
-      {
-
-      }
 
       public function getMetaFiles($from = null, $to = null)
       {
@@ -118,20 +187,22 @@ class Document
       {
 
       }
-
-      /**
-     * Save the document to the destination
+     *
+     * /**
+     * Save the document to a defined destination
      *
      * @param string $destination_dir
+     *
+     * @throws DocumentException
      */
     /* public function save($destination_dir)
       {
-      if (is_null($destination_dir) || !is_string($destination_dir) || $destination_dir === '') {
+      if (is_null($destination_dir) ||!is_string($destination_dir) || $destination_dir === '') {
       throw new DocumentException('The destination directory of the document must be a non empty string');
       }
-      if (false === file_put_contents($destination_dir . $this->name, $this->data)) {
+      if (false === file_put_contents($destination_dir . $this->name . $this->format, $this->data)) {
       throw new DocumentException('An error has occured while saving the document');
       }
       }
-     */
+      /* */
 }

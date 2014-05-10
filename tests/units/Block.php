@@ -56,6 +56,28 @@ class Block extends atoum
                 ->hasMessage('Block binding value must be a non empty string or number');
     }
 
+    /**
+     *
+     */
+    public function test_block_binding_is_called_recursively_if_parameter_is_array()
+    {
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
+
+        $this->when(function() use ($block) {
+                    $block->bind([
+                        'testKey'  => 'testValue' ,
+                        'testKey2' => 'testValue2'
+                    ]);
+                })
+                ->array($block->retrieveValues())
+                ->containsValues([ 'testValue' , 'testValue2' ])
+                ->hasKeys([ 'testKey' , 'testKey2' ]);
+    }
+
+    /**
+     *
+     */
     public function test_block_getName_return_string()
     {
         $mock  = $this->scaffoldMock();
@@ -67,6 +89,9 @@ class Block extends atoum
                 ->isEqualTo('randomBlockName');
     }
 
+    /**
+     *
+     */
     public function test_block_retrieveValues_return_array()
     {
         $mock  = $this->scaffoldMock();
@@ -79,16 +104,17 @@ class Block extends atoum
                 ->containsValues(['my test value' , 'another test value' ]);
     }
 
+    /**
+     *
+     */
     public function test_getAllBlockNames_throw_exception_when_soap_error_occurs()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockNames = function() {
             throw new SoapException('random exception');
         };
-
-        $block = new LDXBlock($mock);
-
         $this->exception(function () use ($block) {
                     $block->getAllBlockNames();
                 })
@@ -99,21 +125,20 @@ class Block extends atoum
 
     public function test_getAllBlockNames_return_empty_array_when_no_blocks()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockNames = function() {
             return new stdClass();
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getAllBlockNames())
                 ->isEmpty();
     }
 
     public function test_getAllBlockNames_return_array_when_an_array()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockNames = function() {
             $ret                              = new stdClass();
@@ -121,16 +146,14 @@ class Block extends atoum
             $ret->GetBlockNamesResult->string = ['value1' , 'value2' ];
             return $ret;
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getAllBlockNames())
                 ->containsValues(['value1' , 'value2' ]);
     }
 
     public function test_getAllBlockNames_return_array_when_a_string()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockNames = function() {
             $ret                              = new stdClass();
@@ -138,9 +161,6 @@ class Block extends atoum
             $ret->GetBlockNamesResult->string = 'value1';
             return $ret;
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getAllBlockNames())
                 ->containsValues(['value1' ]);
     }
@@ -150,14 +170,12 @@ class Block extends atoum
      */
     public function test_getFieldNames_throw_exception_when_soap_error_occurs()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             throw new SoapException('random exception');
         };
-
-        $block = new LDXBlock($mock);
-
         $this->exception(function () use ($block) {
                     $block->getFieldNames();
                 })
@@ -171,14 +189,12 @@ class Block extends atoum
      */
     public function test_getFieldNames_return_empty_array_when_no_fields()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             return new stdClass();
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getFieldNames())
                 ->isEmpty();
     }
@@ -188,7 +204,8 @@ class Block extends atoum
      */
     public function test_getFieldNames_return_array_when_an_array()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             $ret                                   = new stdClass();
@@ -196,9 +213,6 @@ class Block extends atoum
             $ret->GetBlockFieldNamesResult->string = ['value1' , 'value2' ];
             return $ret;
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getFieldNames())
                 ->containsValues(['value1' , 'value2' ]);
     }
@@ -208,7 +222,8 @@ class Block extends atoum
      */
     public function test_getFieldNames_return_array_when_a_string()
     {
-        $mock = $this->scaffoldMock();
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             $ret                                   = new stdClass();
@@ -216,9 +231,6 @@ class Block extends atoum
             $ret->GetBlockFieldNamesResult->string = 'value1';
             return $ret;
         };
-
-        $block = new LDXBlock($mock);
-
         $this->array($block->getFieldNames())
                 ->containsValues(['value1' ]);
     }
@@ -236,8 +248,7 @@ class Block extends atoum
             [ null ] ,
             [new stdClass() ] ,
             [1234567890 ] ,
-            [123.123456 ] ,
-            [array() ]
+            [123.123456 ]
         ];
     }
 

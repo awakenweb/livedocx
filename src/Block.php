@@ -66,25 +66,32 @@ class Block
     /**
      * Bind a value to a block key
      *
-     * @param string               $key
+     * @param string| array        $key
      * @param string|integer|float $value
      *
      * @return Block
      *
      * @throws BlockException
      */
-    public function bind($key , $value)
+    public function bind($key , $value = null)
     {
-        if ( is_null($key) || ! is_string($key) || $key === '' ) {
-            throw new BlockException('Block binding key must be a non empty string');
+
+        if ( is_array($key) ) {
+            foreach ( $key as $fieldname => $val ) {
+                $this->bind($fieldname , $val);
+            }
+        } else {
+
+            if ( is_null($key) || ! is_string($key) || $key === '' ) {
+                throw new BlockException('Block binding key must be a non empty string');
+            }
+
+            if ( is_null($value) || ( ! is_string($value) && ! is_numeric($value)) || $value === '' ) {
+                throw new BlockException('Block binding value must be a non empty string or number');
+            }
+
+            $this->bindings[ $key ] = $value;
         }
-
-        if ( is_null($value) || ( ! is_string($value) && ! is_numeric($value)) || $value === '' ) {
-            throw new BlockException('Block binding value must be a non empty string or number');
-        }
-
-        $this->bindings[ $key ] = $value;
-
         return $this;
     }
 

@@ -26,14 +26,9 @@
 
 namespace Awakenweb\Livedocx;
 
-use Awakenweb\Livedocx\Exceptions\LivedocxException;
-use Awakenweb\Livedocx\Exceptions\SoapException;
-use SoapFault;
-
 /**
- * Livedocx webservice API for PDF generation
- *
- * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
+ * Main class of the project. This class actually acts as a factory for other class
+ * and connects them together
  */
 class Livedocx
 {
@@ -41,130 +36,92 @@ class Livedocx
     use Soap\HasSoapClient;
 
     /**
+     * Factory method for Document
      *
-     * @var string
+     * @return \Awakenweb\Livedocx\Document
      */
-    protected $connected = false;
-
-    /**
-     *
-     * @var array
-     */
-    protected $fields = [ ];
-
-    /**
-     *
-     * @var array
-     */
-    protected $blocks = [ ];
-
-    /**
-     * Try to logout from the server before destruction of the object
-     */
-    public function __destruct()
+    public function createDocument()
     {
-        $this->logOut();
+        return new Document($this->getSoapClient());
     }
 
     /**
-     * Connects to the livedocx service
+     * Factory method for Image
      *
-     * @param string $username
-     * @param string $password
-     *
-     * @return Livedocx
-     *
-     * @throws LivedocxException
+     * @return \Awakenweb\Livedocx\Image
      */
-    public function logIn($username , $password)
+    public function createImage()
     {
-        try {
-            $this->getSoapClient()->logIn([
-                'username' => $username ,
-                'password' => $password
-            ]);
-            $this->connected = true;
-            return $this;
-        } catch ( SoapException $e ) {
-            throw new LivedocxException('Unable to connect to Livedocx service. Login or password may be invalid' , $e);
-        }
+        return new Image($this->getSoapClient());
     }
 
     /**
-     * End the connection to the Livedocx server
+     * Factory method for Block
      *
-     * @throws LivedocxException
+     * @return \Awakenweb\Livedocx\Block
      */
-    public function logOut()
+    public function createBlock()
     {
-        try {
-            $this->getSoapClient()->logOut();
-            $this->connected = false;
-        } catch ( SoapException $e ) {
-            throw new LivedocxException('Unable to log out of Livedocx' , $e);
-        }
+        return new Block($this->getSoapClient());
     }
 
     /**
-     * Assign a value to a field
+     * Factory method for Remote templates
      *
-     * @param type $fieldname
-     * @param type $value
-     *
-     * @return Livedocx
+     * @return \Awakenweb\Livedocx\Templates\Remote
      */
-    public function assign($fieldname , $value = null)
+    public function createRemoteTemplate()
     {
-        if ( is_array($fieldname) ) {
-            foreach ( $fieldname as $key => $val ) {
-                $this->assign($key , $val);
-            }
-        }
-        $this->fields[ $fieldname ] = $value;
-        return $this;
+        return new Templates\Remote($this->getSoapClient());
     }
 
     /**
-     * Add a repeat block to the values
+     * Factory method for Local templates
      *
-     * @param Block $block
-     *
-     * @return Livedocx
+     * @return \Awakenweb\Livedocx\Templates\Local
      */
-    public function addBlock(Block $block)
+    public function createLocalTemplate()
     {
-        $this->blocks = $block;
-        return $this;
+        return new Templates\Local($this->getSoapClient());
     }
 
     /**
-     * Set an associative or multi-associative array of keys and values pairs
+     * Factory method for Service
      *
-     * @param array $values
-     *
-     * @return Livedocx
+     * @return \Awakenweb\Livedocx\Service
      */
-    protected function setFieldValues($values)
+    public function createService()
     {
-        foreach ( $values as $value ) {
-            if ( is_array($value) ) {
-                $method = 'multiAssocArrayToArrayOfArrayOfString';
-            } else {
-                $method = 'assocArrayToArrayOfArrayOfString';
-            }
-            break;
-        }
+        return new Service($this->getSoapClient());
+    }
 
-        try {
-            $client = $this->getSoapClient();
-            $client->SetFieldValues(array(
-                'fieldValues' => $client->$method($values) ,
-            ));
-        } catch ( SoapException $e ) {
-            throw new LivedocxException('Unable to bind values to fields' , $e);
-        }
+    /**
+     * Prepare the merging of the fields and the document
+     *
+     * @param Service $ldx
+     *
+     * @return Document
+     */
+    public function prepare(Service $service)
+    {
 
-        return $this;
+        $blocks = $service->getBlocks();
+        $fields = array_merge($service->getFields(), $service->getImages());
+
+        $this->declareListOfBlocks($blocks);
+        $this->declareListOfValues($fields);
+
+        return new Document;
+    }
+
+    protected function declareListOfBlocks($blocks)
+    {
+        
+    }
+
+    protected function declareListOfValues()
+    {
+
     }
 
 }

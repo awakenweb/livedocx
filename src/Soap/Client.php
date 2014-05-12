@@ -102,7 +102,7 @@ class Client
         $arrayKeys   = array_keys($multi[ 0 ]);
         $arrayValues = array();
 
-        foreach ( $multi as $v ) {
+        foreach ($multi as $v) {
             $arrayValues[] = array_values($v);
         }
 
@@ -125,7 +125,7 @@ class Client
         $ret = array();
 
         if ( isset($list->ArrayOfString) ) {
-            foreach ( $list->ArrayOfString as $a ) {
+            foreach ($list->ArrayOfString as $a) {
                 if ( is_array($a) ) {      // 1 template only
                     $o         = new StdClass();
                     $o->string = $a;
@@ -139,14 +139,15 @@ class Client
                     $date2 = DateTime::createFromFormat(DateTime::RFC1123 , $o->string[ 1 ]);
                     $ret[] = array(
                         'filename'   => $o->string[ 0 ] ,
-                        'fileSize'   => ( integer ) $o->string[ 2 ] ,
-                        'createTime' => ( integer ) $date1->getTimestamp() ,
-                        'modifyTime' => ( integer ) $date2->getTimestamp() ,
+                        'fileSize'   => (integer) $o->string[ 2 ] ,
+                        'createTime' => (integer) $date1->getTimestamp() ,
+                        'modifyTime' => (integer) $date2->getTimestamp() ,
                     );
                     unset($date1 , $date2);
                 }
             }
         }
+
         return $ret;
     }
 

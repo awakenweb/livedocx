@@ -77,7 +77,7 @@ class Block
     {
 
         if ( is_array($key) ) {
-            foreach ( $key as $fieldname => $val ) {
+            foreach ($key as $fieldname => $val) {
                 $this->bind($fieldname , $val);
             }
         } else {
@@ -92,6 +92,7 @@ class Block
 
             $this->bindings[ $key ] = $value;
         }
+
         return $this;
     }
 

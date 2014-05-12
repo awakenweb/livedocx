@@ -51,7 +51,7 @@ class Image
     /**
      * Define the file and the working directory for a localfile
      *
-     * @param string $filename
+     * @param string      $filename
      * @param string|null $directory
      */
     public function setFilename($filename, $directory = null)
@@ -74,6 +74,7 @@ class Image
             return $this->filename;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->filename : $this->filename;
+
         return str_replace('//', '/', $filename);
     }
 
@@ -92,6 +93,7 @@ class Image
             if (isset($result->ListImagesResult)) {
                 $return = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListImagesResult);
             }
+
             return $return;
         } catch (Exceptions\SoapException $ex) {
             throw new Exceptions\ImageException('Error while obtaining the list of all images', $ex);
@@ -114,6 +116,7 @@ class Image
                 $ret = $result->GetImageImportFormatsResult->string;
                 $ret = array_map('strtolower', $ret);
             }
+
             return $ret;
         } catch (Exceptions\SoapException $ex) {
             throw new Exceptions\ImageException('Error while obtaining the list of accepted image formats', $ex);
@@ -136,6 +139,7 @@ class Image
                 $ret = $result->GetImageExportFormatsResult->string;
                 $ret = array_map('strtolower', $ret);
             }
+
             return $ret;
         } catch (Exceptions\SoapException $ex) {
             throw new Exceptions\ImageException('Error while obtaining the list of all available image formats', $ex);
@@ -151,7 +155,6 @@ class Image
      */
     public function upload()
     {
-        // if a directory is provided, concatenate it with the
         $filename = $this->getName(true);
 
         if (!is_readable($filename)) {
@@ -163,6 +166,7 @@ class Image
                 'image'    => base64_encode(file_get_contents($filename)),
                 'filename' => basename($filename),
             ));
+
             return $this;
         } catch (Exceptions\SoapException $e) {
             throw new Exceptions\ImageException('Error while uploading the image', $e);
@@ -182,6 +186,7 @@ class Image
             $result = $this->getSoapClient()->DownloadImage(array(
                 'filename' => basename($this->filename),
             ));
+
             return base64_decode($result->DownloadImageResult);
         } catch (Exceptions\SoapException $e) {
             throw new Exceptions\ImageException('Error while downloading the image', $e);
@@ -201,6 +206,7 @@ class Image
             $result = $this->getSoapClient()->ImageExists(array(
                 'filename' => basename($this->filename),
             ));
+
             return (boolean) $result->ImageExistsResult;
         } catch (Exceptions\SoapException $e) {
             throw new Exceptions\ImageException('Error while verifying existence of the image', $e);
@@ -220,6 +226,7 @@ class Image
             $this->getSoapClient()->DeleteImage([
                 'filename' => basename($this->getName(true)),
             ]);
+
             return $this;
         } catch (Exceptions\SoapException $e) {
             throw new Exceptions\ImageException('Error while deleting the image', $e);

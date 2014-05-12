@@ -55,6 +55,7 @@ class Remote extends Template
         try {
             $this->getSoapClient()->SetRemoteTemplate(['filename' => $this->getName() ]);
             $this->isActive = true;
+
             return $this;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while setting the remote template as the active template' , $ex);
@@ -75,7 +76,8 @@ class Remote extends Template
     {
         try {
             $result = $this->soapClient->templateExists(['filename' => $this->getName() ]);
-            return ( bool ) $result->TemplateExistsResult;
+
+            return (bool) $result->TemplateExistsResult;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while verifying the existence of a remote template' , $ex);
         }
@@ -96,6 +98,7 @@ class Remote extends Template
         try {
             $result = $this->getSoapClient()->DownloadTemplate(array(
                 'filename' => basename($this->getName()) ));
+
             return base64_decode($result->DownloadTemplateResult);
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while downloading the remote template from Livedocx service' , $ex);
@@ -115,6 +118,7 @@ class Remote extends Template
             $this->getSoapClient()->DeleteTemplate(array(
                 'filename' => basename($this->getName())
             ));
+
             return $this;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while deleting the remote template from Livedocx service' , $ex);

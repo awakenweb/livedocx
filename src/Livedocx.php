@@ -26,6 +26,10 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\LivedocxException;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use SoapFault;
+
 /**
  * Livedocx webservice API for PDF generation
  *
@@ -41,18 +45,6 @@ class Livedocx
      * @var string
      */
     protected $connected = false;
-
-    /**
-     *
-     * @var string
-     */
-    protected $username;
-
-    /**
-     *
-     * @var string
-     */
-    protected $password;
 
     /**
      *
@@ -75,58 +67,41 @@ class Livedocx
     }
 
     /**
-     * Set credentials for login
-     *
-     * @param type $username
-     * @param type $password
-     *
-     * @return \Awakenweb\Livedocx\Livedocx
-     */
-    public function setCredentials($username , $password)
-    {
-        $this->username = $username;
-        $this->password = $password;
-
-        return $this;
-    }
-
-    /**
      * Connects to the livedocx service
      *
      * @param string $username
      * @param string $password
      *
-     * @return \Awakenweb\Livedocx\Livedocx
+     * @return Livedocx
      *
-     * @throws Exceptions\LivedocxException
+     * @throws LivedocxException
      */
-    public function logIn($username = null , $password = null)
+    public function logIn($username , $password)
     {
         try {
             $this->getSoapClient()->logIn([
-                'username' => $username ? : $this->username ,
-                'password' => $password ? : $this->passowrd
+                'username' => $username ,
+                'password' => $password
             ]);
             $this->connected = true;
-
             return $this;
-        } catch ( \SoapFault $e ) {
-            throw new Exceptions\LivedocxException('Login or password is invalid' , $e);
+        } catch ( SoapException $e ) {
+            throw new LivedocxException('Unable to connect to Livedocx service. Login or password may be invalid' , $e);
         }
     }
 
     /**
      * End the connection to the Livedocx server
      *
-     * @throws Exceptions\LivedocxException
+     * @throws LivedocxException
      */
     public function logOut()
     {
         try {
             $this->getSoapClient()->logOut();
             $this->connected = false;
-        } catch ( \SoapFault $e ) {
-            throw new Exceptions\LivedocxException('Unable to log out of Livedocx' , $e);
+        } catch ( SoapException $e ) {
+            throw new LivedocxException('Unable to log out of Livedocx' , $e);
         }
     }
 
@@ -135,22 +110,26 @@ class Livedocx
      *
      * @param type $fieldname
      * @param type $value
-     * 
-     * @return \Awakenweb\Livedocx\Livedocx
+     *
+     * @return Livedocx
      */
-    public function assign($fieldname , $value)
+    public function assign($fieldname , $value = null)
     {
+        if ( is_array($fieldname) ) {
+            foreach ( $fieldname as $key => $val ) {
+                $this->assign($key , $val);
+            }
+        }
         $this->fields[ $fieldname ] = $value;
-
         return $this;
     }
 
     /**
      * Add a repeat block to the values
      *
-     * @param \Awakenweb\Livedocx\Block $block
+     * @param Block $block
      *
-     * @return \Awakenweb\Livedocx\Livedocx
+     * @return Livedocx
      */
     public function addBlock(Block $block)
     {
@@ -167,8 +146,6 @@ class Livedocx
      */
     protected function setFieldValues($values)
     {
-        $this->logIn();
-
         foreach ( $values as $value ) {
             if ( is_array($value) ) {
                 $method = 'multiAssocArrayToArrayOfArrayOfString';
@@ -183,8 +160,8 @@ class Livedocx
             $client->SetFieldValues(array(
                 'fieldValues' => $client->$method($values) ,
             ));
-        } catch ( Exceptions\SoapException $e ) {
-            throw new Exceptions\LivedocxException('Unable to bind values to fields' , $e);
+        } catch ( SoapException $e ) {
+            throw new LivedocxException('Unable to bind values to fields' , $e);
         }
 
         return $this;

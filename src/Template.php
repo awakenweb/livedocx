@@ -76,6 +76,7 @@ abstract class Template
             if (isset($result->ListTemplatesResult)) {
                 $ret = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListTemplatesResult);
             }
+
             return $ret;
         } catch (SoapException $ex) {
             throw new TemplateException('Error while getting the list of all uploaded templates', $ex);
@@ -98,6 +99,7 @@ abstract class Template
                 $ret = $result->GetTemplateFormatsResult->string;
                 $ret = array_map('strtolower', $ret);
             }
+
             return $ret;
         } catch (SoapException $ex) {
             throw new TemplateException('Error while getting the list of accepted template formats', $ex);
@@ -119,6 +121,7 @@ abstract class Template
             if (isset($result->GetFontNamesResult->string)) {
                 $ret = $result->GetFontNamesResult->string;
             }
+
             return $ret;
         } catch (SoapException $ex) {
             throw new TemplateException('Error while getting the list of available fonts', $ex);
@@ -144,6 +147,7 @@ abstract class Template
             $this->getSoapClient()->SetIgnoreSubTemplates(array(
                 'ignoreSubTemplates' => $state,
             ));
+
             return $this;
         } catch (SoapException $ex) {
             throw new TemplateException("Error while telling the server to ignore subtemplates", $ex);
@@ -169,6 +173,7 @@ abstract class Template
             $this->getSoapClient()->SetSubTemplateIgnoreList(array(
                 'filenames' => $filenames,
             ));
+
             return $this;
         } catch (SoapException $ex) {
             throw new TemplateException("Error while telling the server to ignore a list of subtemplates", $ex);
@@ -207,7 +212,7 @@ abstract class Template
         return $ret;
     }
 
-    public abstract function getName();
+    abstract public function getName();
 
-    public abstract function setAsActive();
+    abstract public function setAsActive();
 }

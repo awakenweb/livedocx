@@ -78,6 +78,7 @@ class Local extends Template
                 'format'   => $format
             ]);
             $this->isActive = true;
+
             return $this;
         } catch ( SoapException $ex ) {
             throw new TemplateException('Error while setting the local template as the active template' , $ex);
@@ -126,10 +127,11 @@ class Local extends Template
      */
     public function getName($full = false)
     {
-        if ( ! $full ) {
+        if (! $full) {
             return $this->templateName;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->templateName : $this->templateName;
+
         return str_replace('//' , '/' , $filename);
     }
 
@@ -147,6 +149,7 @@ class Local extends Template
         } catch ( RuntimeException $ex ) {
             throw new FileExistException('The provided file is not readable' , $ex);
         }
+
         return file_get_contents($fileObj->getPathname());
     }
 
@@ -164,6 +167,7 @@ class Local extends Template
         } catch ( RuntimeException $ex ) {
             throw new FileExistException('The provided file is not readable' , $ex);
         }
+
         return $fileObj->getExtension();
     }
 

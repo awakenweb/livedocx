@@ -26,10 +26,10 @@
 
 namespace Awakenweb\Livedocx\Soap;
 
-use Awakenweb\Livedocx\Exceptions\SoapException ,
-    SoapClient ,
-    SoapFault ,
-    DateTime ,
+use Awakenweb\Livedocx\Exceptions\SoapException,
+    SoapClient,
+    SoapFault,
+    DateTime,
     StdClass;
 
 /**
@@ -64,14 +64,44 @@ class Client
      * @return mixed
      *
      */
-    public function __call($methodname , $args)
+    public function __call($methodname, $args)
     {
 
         try {
-            return call_user_func_array([ $this->client , $methodname ] , $args);
-        } catch ( SoapFault $ex ) {
-            throw new SoapException('Error while querying the SOAP server' , $ex);
+            return call_user_func_array([ $this->client, $methodname], $args);
+        } catch (SoapFault $ex) {
+            throw new SoapException('Error while querying the SOAP server', $ex);
         }
+    }
+
+    /**
+     * Convert a standard PHP array to a Livedocx compatible array
+     *
+     * @param array $array
+     *
+     * @return array
+     */
+    public function convertArray($array)
+    {
+        if ($this->isArrayMulti($array)) {
+            return $this->multiAssocArrayToArrayOfArrayOfString($array);
+        }
+        return $this->assocArrayToArrayOfArrayOfString($array);
+    }
+
+    /**
+     *
+     * @param array $array
+     *
+     * @return boolean
+     */
+    protected function isArrayMulti($array)
+    {
+        foreach ($array as $value) {
+            if (is_array($value))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -81,12 +111,12 @@ class Client
      *
      * @return array
      */
-    public function assocArrayToArrayOfArrayOfString($assoc)
+    protected function assocArrayToArrayOfArrayOfString($assoc)
     {
         $arrayKeys   = array_keys($assoc);
         $arrayValues = array_values($assoc);
 
-        return array( $arrayKeys , $arrayValues );
+        return array($arrayKeys, $arrayValues);
     }
 
     /**
@@ -97,19 +127,19 @@ class Client
      *
      * @return array
      */
-    public function multiAssocArrayToArrayOfArrayOfString($multi)
+    protected function multiAssocArrayToArrayOfArrayOfString($multi)
     {
-        $arrayKeys   = array_keys($multi[ 0 ]);
+        $arrayKeys   = array_keys($multi[0]);
         $arrayValues = array();
 
         foreach ($multi as $v) {
             $arrayValues[] = array_values($v);
         }
 
-        $_arrayKeys      = array();
-        $_arrayKeys[ 0 ] = $arrayKeys;
+        $_arrayKeys    = array();
+        $_arrayKeys[0] = $arrayKeys;
 
-        return array_merge($_arrayKeys , $arrayValues);
+        return array_merge($_arrayKeys, $arrayValues);
     }
 
     /**
@@ -124,9 +154,9 @@ class Client
     {
         $ret = array();
 
-        if ( isset($list->ArrayOfString) ) {
+        if (isset($list->ArrayOfString)) {
             foreach ($list->ArrayOfString as $a) {
-                if ( is_array($a) ) {      // 1 template only
+                if (is_array($a)) {      // 1 template only
                     $o         = new StdClass();
                     $o->string = $a;
                 } else {                 // 2 or more templates
@@ -134,16 +164,16 @@ class Client
                 }
                 unset($a);
 
-                if ( isset($o->string) ) {
-                    $date1 = DateTime::createFromFormat(DateTime::RFC1123 , $o->string[ 3 ]);
-                    $date2 = DateTime::createFromFormat(DateTime::RFC1123 , $o->string[ 1 ]);
+                if (isset($o->string)) {
+                    $date1 = DateTime::createFromFormat(DateTime::RFC1123, $o->string[3]);
+                    $date2 = DateTime::createFromFormat(DateTime::RFC1123, $o->string[1]);
                     $ret[] = array(
-                        'filename'   => $o->string[ 0 ] ,
-                        'fileSize'   => (integer) $o->string[ 2 ] ,
-                        'createTime' => (integer) $date1->getTimestamp() ,
-                        'modifyTime' => (integer) $date2->getTimestamp() ,
+                        'filename'   => $o->string[0],
+                        'fileSize'   => (integer) $o->string[2],
+                        'createTime' => (integer) $date1->getTimestamp(),
+                        'modifyTime' => (integer) $date2->getTimestamp(),
                     );
-                    unset($date1 , $date2);
+                    unset($date1, $date2);
                 }
             }
         }

@@ -42,9 +42,22 @@ class Livedocx
      *
      * @var Container
      */
-    protected $service;
+    protected $container;
 
     use Soap\HasSoapClient;
+
+    /**
+     * Create a new instance of Livedocx by providing an instance of Soap\Client and
+     * a values Container
+     *
+     * @param \Awakenweb\Livedocx\Soap\Client $client
+     * @param \Awakenweb\Livedocx\Container $container
+     */
+    public function __construct(Soap\Client $client, Container $container)
+    {
+        $this->soapClient = $client;
+        $this->container  = $container;
+    }
 
     /**
      * Factory method for Document
@@ -106,12 +119,7 @@ class Livedocx
      */
     public function assign($key, $value = null)
     {
-
-        if (!isset($this->service)) {
-            $this->service = new Container($this->getSoapClient());
-        }
-
-        $this->service->assign($key, $value);
+        $this->container->assign($key, $value);
 
         return $this;
     }
@@ -119,15 +127,15 @@ class Livedocx
     /**
      * Prepare the merging of the fields and return a document
      *
-     * @param Container $service
+     * @param Container $container
      *
      * @return Document
      */
     public function prepare()
     {
 
-        $blocks = $this->service->getBlocks();
-        $fields = array_merge($this->service->getFields(), $this->service->getImages());
+        $blocks = $this->container->getBlocks();
+        $fields = array_merge($this->container->getFields(), $this->container->getImages());
 
         $this->declareListOfBlocks($blocks)
                 ->declareListOfValues($fields);
@@ -153,7 +161,11 @@ class Livedocx
                     'blockFieldValues' => $this->getSoapClient()->convertArray($block->retrieveValues())
                 ));
             } catch (SoapException $ex) {
-                throw new LivedocxException("Error while sending blocks informations to Livedocx service (block: {$block->getName()})", $ex);
+                $s = '';
+                if (!is_null($block->getName())) {
+                    $s.= " (block: {$block->getName()})";
+                }
+                throw new LivedocxException("Error while sending blocks informations to Livedocx service" . $s, $ex);
             }
         }
         return $this;

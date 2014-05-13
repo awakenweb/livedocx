@@ -26,6 +26,11 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\LivedocxException;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use Awakenweb\Livedocx\Templates\Local as Local;
+use Awakenweb\Livedocx\Templates\Remote as Remote;
+
 /**
  * Main class of the project. This class actually acts as a factory for other class
  * and connects them together
@@ -33,12 +38,18 @@ namespace Awakenweb\Livedocx;
 class Livedocx
 {
 
+    /**
+     *
+     * @var Container
+     */
+    protected $service;
+
     use Soap\HasSoapClient;
 
     /**
      * Factory method for Document
      *
-     * @return \Awakenweb\Livedocx\Document
+     * @return Document
      */
     public function createDocument()
     {
@@ -48,7 +59,7 @@ class Livedocx
     /**
      * Factory method for Image
      *
-     * @return \Awakenweb\Livedocx\Image
+     * @return Image
      */
     public function createImage()
     {
@@ -58,7 +69,7 @@ class Livedocx
     /**
      * Factory method for Block
      *
-     * @return \Awakenweb\Livedocx\Block
+     * @return Block
      */
     public function createBlock()
     {
@@ -68,60 +79,106 @@ class Livedocx
     /**
      * Factory method for Remote templates
      *
-     * @return \Awakenweb\Livedocx\Templates\Remote
+     * @return Remote
      */
     public function createRemoteTemplate()
     {
-        return new Templates\Remote($this->getSoapClient());
+        return new Remote($this->getSoapClient());
     }
 
     /**
      * Factory method for Local templates
      *
-     * @return \Awakenweb\Livedocx\Templates\Local
+     * @return Local
      */
     public function createLocalTemplate()
     {
-        return new Templates\Local($this->getSoapClient());
+        return new Local($this->getSoapClient());
     }
 
     /**
-     * Factory method for Service
      *
-     * @return \Awakenweb\Livedocx\Service
+     * @param mixed $key
+     *
+     * @param null|string $value
+     *
+     * @return \Awakenweb\Livedocx\Livedocx
      */
-    public function createService()
+    public function assign($key, $value = null)
     {
-        return new Service($this->getSoapClient());
+
+        if (!isset($this->service)) {
+            $this->service = new Container($this->getSoapClient());
+        }
+
+        $this->service->assign($key, $value);
+
+        return $this;
     }
 
     /**
-     * Prepare the merging of the fields and the document
+     * Prepare the merging of the fields and return a document
      *
-     * @param Service $ldx
+     * @param Container $service
      *
      * @return Document
      */
-    public function prepare(Service $service)
+    public function prepare()
     {
 
-        $blocks = $service->getBlocks();
-        $fields = array_merge($service->getFields(), $service->getImages());
+        $blocks = $this->service->getBlocks();
+        $fields = array_merge($this->service->getFields(), $this->service->getImages());
 
-        $this->declareListOfBlocks($blocks);
-        $this->declareListOfValues($fields);
+        $this->declareListOfBlocks($blocks)
+                ->declareListOfValues($fields);
 
-        return new Document;
+        return $this->createDocument();
     }
 
+    /**
+     * Send the list of all block values to Livedocx service to prepare the merging
+     *
+     * @param array $blocks
+     *
+     * @return Livedocx
+     *
+     * @throws LivedocxException
+     */
     protected function declareListOfBlocks($blocks)
     {
-        
+        foreach ($blocks as $block) {
+            try {
+                $this->getSoapClient()->SetBlockFieldValues(array(
+                    'blockName'        => $block->getName(),
+                    'blockFieldValues' => $this->getSoapClient()->convertArray($block->retrieveValues())
+                ));
+            } catch (SoapException $ex) {
+                throw new LivedocxException("Error while sending blocks informations to Livedocx service (block: {$block->getName()})", $ex);
+            }
+        }
+        return $this;
     }
 
-    protected function declareListOfValues()
+    /**
+     *  Send the list of all field values to Livedocx service to prepare the merging
+     *
+     * @param array $fields
+     *
+     * @return \Awakenweb\Livedocx\Livedocx
+     *
+     * @throws LivedocxException
+     */
+    protected function declareListOfValues($fields)
     {
+        try {
+            $this->getSoapClient()->SetFieldValues(array(
+                'fieldValues' => $this->getSoapClient()->convertArray($fields)
+            ));
+        } catch (SoapException $e) {
+            throw new LivedocxException('Error while sending the fields/values binding to Livedocx service', $e);
+        }
 
+        return $this;
     }
 
 }

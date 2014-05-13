@@ -28,7 +28,7 @@ namespace Awakenweb\Livedocx;
 
 use Awakenweb\Livedocx\Exceptions\ServiceException;
 
-class Service
+class Container
 {
 
     /**
@@ -56,31 +56,35 @@ class Service
      * @param string|array|Block $fieldname
      * @param string|Image       $value
      *
-     * @return Service
+     * @return Container
      *
      * @throws ServiceException
      */
     public function assign($fieldname, $value = null)
     {
-        switch ($fieldname) {
-            case $fieldname instanceOf Block:
-                $this->blocks[] = $fieldname;
-                break;
-            case is_array($fieldname): // bulk fields assignment
-                foreach ($fieldname as $field => $val) {
-                    $this->fields[$field] = $val;
-                }
-                break;
-            case is_string($fieldname) && $value instanceOf Image:
-                $this->images['image:' . $fieldname] = $value;
-                break;
-            case is_string($fieldname && !is_null($value)):
-                $this->fields[$fieldname]          = $value;
-            default:
-                throw new ServiceException('Incorrect parameters for assignment');
+        if ($fieldname instanceOf Block) {
+            $this->blocks[] = $fieldname;
+            return $this;
         }
 
-        return $this;
+        if (is_array($fieldname) && !empty($fieldname)) { // bulk fields assignment
+            foreach ($fieldname as $field => $val) {
+                $this->fields[$field] = $val;
+            }
+            return $this;
+        }
+
+        if (is_string($fieldname) && $value instanceOf Image) {
+            $this->images['image:' . $fieldname] = $value;
+            return $this;
+        }
+
+        if (is_string($fieldname) && !is_null($value)) {
+            $this->fields[$fieldname] = $value;
+            return $this;
+        }
+
+        throw new ServiceException('Incorrect parameters for assignment');
     }
 
     /**

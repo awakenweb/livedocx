@@ -41,21 +41,56 @@ use stdClass;
 class Client extends atoum
 {
 
-    public function test_proxy()
+    public function test_connect_throw_exception_when_soap_error_occurs()
     {
-        $mock = $this->scaffoldMock();
-
-        $mock->getMockController()->testMethod = function() {
-            return true;
-        };
-
+        $mock      = $this->scaffoldMock();
         $ldxclient = new LdxClient($mock);
 
-        $this->boolean($ldxclient->testMethod())
-                ->mock($mock)->call('testMethod')->once();
+        $mock->getMockController()->LogIn = function() {
+            throw new SoapFault('test', 'test exception');
+        };
+        $this->exception(function() use($ldxclient) {
+                    $ldxclient->connect('testUsername', 'testPassword');
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\SoapException')
+                ->hasMessage('Either an error occured when connecting to Livedocx, or the credentials you provided are wrong')
+                ->hasNestedException();
     }
 
-    public function test_proxy_method_throw_exception()
+    public function test_connect_accept_set_isConnected_marker()
+    {
+        $mock   = $this->scaffoldMock();
+        $client = new LdxClient($mock);
+
+        $mock->getMockController()->LogIn = true;
+
+        $this->boolean($client->isConnected())
+                ->isFalse();
+
+        $client->connect('testUsername', 'testPassword');
+
+        $this->boolean($client->isConnected())
+                ->isTrue();
+    }
+
+    public function test_connect_does_nothing_if_called_twice()
+    {
+        $mock   = $this->scaffoldMock();
+        $client = new LdxClient($mock);
+
+        $mock->getMockController()->LogIn = true;
+
+        $client->connect('testUsername', 'testPassword');
+        $client->connect('testUsername', 'testPassword');
+        $client->connect('testUsername', 'testPassword');
+        $client->connect('testUsername', 'testPassword');
+
+        $this->mock($mock)
+                ->call('LogIn')
+                ->once();
+    }
+
+    public function test_proxy_method_throw_exception_when_not_authenticated()
     {
         $mock = $this->scaffoldMock();
 
@@ -69,7 +104,41 @@ class Client extends atoum
                     $ldxclient->testMethod();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\SoapException')
-                ->hasMessage('Error while querying the SOAP server');
+                ->hasMessage('You are not authenticated on Livedocx. Please use connect method before any other API call');
+    }
+
+    public function test_proxy_method_throw_exception_when_soap_error_occurs()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->LogIn      = true;
+        $mock->getMockController()->testMethod = function() {
+            throw new SoapFault('test', 'test exception');
+        };
+
+        $ldxclient = new LdxClient($mock);
+        $ldxclient->connect('test', 'test');
+
+        $this->exception(function() use($ldxclient) {
+                    $ldxclient->testMethod();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\SoapException')
+                ->hasMessage('Error while querying the SOAP server')
+                ->hasNestedException();
+    }
+
+    public function test_proxy()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->LogIn      = true;
+        $mock->getMockController()->testMethod = true;
+
+        $ldxclient = new LdxClient($mock);
+        $ldxclient->connect('test', 'test');
+
+        $this->boolean($ldxclient->testMethod())
+                ->mock($mock)->call('testMethod')->once();
     }
 
     public function test_convertArray_return_an_array_of_array_of_strings_when_given_flat_array()

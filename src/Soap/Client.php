@@ -26,11 +26,11 @@
 
 namespace Awakenweb\Livedocx\Soap;
 
-use Awakenweb\Livedocx\Exceptions\SoapException,
-    SoapClient,
-    SoapFault,
-    DateTime,
-    StdClass;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+use DateTime;
+use SoapClient;
+use SoapFault;
+use stdClass;
 
 /**
  * Abstraction class for ext-soap SoapClient class
@@ -46,6 +46,11 @@ class Client
     protected $client;
 
     /**
+     *
+     */
+    protected $isConnected = false;
+
+    /**
      * Create a new abstraction instance of the SoapClient
      *
      * @param SoapClient $client
@@ -53,6 +58,34 @@ class Client
     public function __construct(SoapClient $client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * Create a session on Livedocx service
+     *
+     * @param string $username
+     * @param string $password
+     *
+     * @return \Awakenweb\Livedocx\Soap\Client
+     *
+     * @throws SoapException
+     */
+    public function connect($username, $password)
+    {
+        if (!$this->isConnected) {
+            try {
+                $this->client->LogIn([ 'username' => $username, 'password' => $password]);
+                $this->isConnected = true;
+            } catch (SoapFault $ex) {
+                throw new SoapException('Either an error occured when connecting to Livedocx, or the credentials you provided are wrong', $ex);
+            }
+        }
+        return $this;
+    }
+
+    public function isConnected()
+    {
+        return (bool) $this->isConnected;
     }
 
     /**
@@ -66,6 +99,9 @@ class Client
      */
     public function __call($methodname, $args)
     {
+        if (!$this->isConnected()) {
+            throw new SoapException('You are not authenticated on Livedocx. Please use connect method before any other API call');
+        }
 
         try {
             return call_user_func_array([ $this->client, $methodname], $args);

@@ -17,6 +17,8 @@ I developped this Livedocx client with two point in mind:
 
 Hope you will find it useful.
 
+This package is unit tested with [Atoum](https://github.com/atoum/atoum)
+
 Prerequisites
 -------------
 
@@ -39,6 +41,20 @@ To install this package using [Composer](https://getcomposer.org/), simply add t
 ```
 
 I'm currently working on service providers to make integration into major frameworks easier. Stay tuned.
+
+What parts of the Livedocx API are covered by this package?
+-----------------------------------------------------------
+
+This package provides support for the following API:
+
+* Document merging
+* Repeated blocks merging
+* Images merging
+* Bitmap exports
+* Metafiles
+* Subtemplates
+
+As there is really few documentation about the shared documents feature, I did not add support for now. I may add it when I find some doc about how to use it.
 
 Use
 ---
@@ -84,4 +100,5 @@ file_put_contents('myPdfFile.pdf', $document->retrieve('pdf');
 Misc
 ----
 __Disclaimer__:
-This package is only a client for the Livedocx API. I do not provide support for the Livedocx API directly as I am not affiliated, associated, authorized, endorsed by, or in any way officially connected with Text Control GmbH.
+This package is only a client for the Livedocx API.
+__I do not provide support for the Livedocx API directly__ as I am not affiliated, associated, authorized, endorsed by, or in any way officially connected with Text Control GmbH.

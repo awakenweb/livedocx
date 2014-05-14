@@ -94,7 +94,7 @@ $document = $livedocx->prepare();
 $document->setPassword('$3CR3T');
 $document->create();
 
-file_put_contents('myPdfFile.pdf', $document->retrieve('pdf');
+file_put_contents('myPdfFile.pdf', $document->retrieve('pdf'));
 ```
 
 Misc

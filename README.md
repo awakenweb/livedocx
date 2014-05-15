@@ -1,6 +1,7 @@
+[![Build Status](https://travis-ci.org/awakenweb/livedocx.svg?branch=master)](https://travis-ci.org/awakenweb/livedocx)
+
 Livedocx
 ========
-
 Generate PDF and other document types using the Livedocx webservice in PHP.
 
 Why this package?

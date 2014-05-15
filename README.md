@@ -13,7 +13,7 @@ The existing Livedocx package is tightly bound to Zend Framework components and 
 
 I developped this Livedocx client with two point in mind:
 
-* just the strict necessary dependency-wise
+* just the strict necessary dependencies
 * an object oriented API
 
 Hope you will find it useful.

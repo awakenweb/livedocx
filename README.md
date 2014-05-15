@@ -26,7 +26,7 @@ This package requires:
 
 * PHP 5.4+
 * ext-soap
-* ext-openssl*
+* ext-openssl *
 
 *_(Livedocx is [unaffected by Heartbleed security leak](https://filippo.io/Heartbleed/#api.livedocx.com))_
 
@@ -61,7 +61,7 @@ Use
 
 First, a [Livedocx](http://www.livedocx.com/) account is required. It may be any account type: free, premium, or fully licenced.
 
-Here is a quick example or the usage of the library. For more detailed explanations and examples, read the [complete documentation](@TODO: ADD DOCUMENTATION LINK).
+The full documentation is in progress and should arrive shortly. For now, here is a simple example of usage. For more informations, take a look at the code.
 
 ```php
 <?php

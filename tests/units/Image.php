@@ -331,17 +331,18 @@ class Image extends atoum
     {
         $mock = $this->scaffoldMock();
 
-        file_put_contents(__DIR__ . '/test.dat', 'some random content');
+        file_put_contents(__DIR__ . '/test-image-1.dat', 'some random content');
 
         $mock->getMockController()->UploadImage = true;
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test-image-1.dat', __DIR__);
 
         $this->object($image->upload())
                 ->isIdenticalTo($image);
 
-        unlink(__DIR__ . '/test.dat');
+        if (file_exists(__DIR__ . '/test-image-1.dat'))
+            unlink(__DIR__ . '/test-image-1.dat');
     }
 
     /**
@@ -356,7 +357,7 @@ class Image extends atoum
         };
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test-image-2.dat', __DIR__);
 
         $this->exception(function() use ($image) {
                     $image->upload();
@@ -375,18 +376,23 @@ class Image extends atoum
             throw new Exceptions\SoapException('random exception');
         };
 
-        file_put_contents(__DIR__ . '/test.dat', 'some random content');
+
 
         $image = new LdxImage($mock);
-        $image->setFilename('test.dat', __DIR__);
+        $image->setFilename('test-image-3.dat', __DIR__);
 
-        $this->exception(function() use ($image) {
+        $this
+                ->if(file_put_contents(__DIR__ . '/test-image-3.dat', 'some random content'))
+                ->then
+                ->exception(function() use ($image) {
                     $image->upload();
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\ImageException')
+                ->hasMessage('Error while uploading the image')
                 ->hasNestedException();
 
-        unlink(__DIR__ . '/test.dat');
+        if (file_exists(__DIR__ . '/test-image-3.dat'))
+            unlink(__DIR__ . '/test-image-3.dat');
     }
 
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */

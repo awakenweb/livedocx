@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx\tests\units;
 
-require_once '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use atoum;
 use Awakenweb\Livedocx\Document as LDXDocument;
@@ -23,13 +23,13 @@ class Document extends atoum
         $mock->getMockController()->GetDocumentFormats = function() {
             $r                                   = new stdClass();
             $r->GetDocumentFormatsResult         = new stdClass();
-            $r->GetDocumentFormatsResult->string = ['Q' , 'b' , 'C' ];
+            $r->GetDocumentFormatsResult->string = ['Q', 'b', 'C'];
 
             return $r;
         };
         $document = new LDXDocument($mock);
         $this->array($document->getAvailableFormats())
-                ->containsValues(['q' , 'b' , 'c' ]);
+                ->containsValues(['q', 'b', 'c']);
     }
 
     /**
@@ -237,11 +237,11 @@ class Document extends atoum
         $mock->getMockController()->GetDocumentAccessOptions = function() {
             $ret                                         = new stdClass();
             $ret->GetDocumentAccessOptionsResult         = new stdClass();
-            $ret->GetDocumentAccessOptionsResult->string = ['random content' , 'random value' , 'random string' ];
+            $ret->GetDocumentAccessOptionsResult->string = ['random content', 'random value', 'random string'];
             return $ret;
         };
         $this->array($document->getAccessOptions())
-                ->containsValues(['random content' , 'random value' , 'random string' ]);
+                ->containsValues(['random content', 'random value', 'random string']);
     }
 
     /**
@@ -253,13 +253,13 @@ class Document extends atoum
         $document = new LDXDocument($mock);
 
         $this->exception(function() use ($document) {
-                    $document->setPermissions(null , 'hello');
+                    $document->setPermissions(null, 'hello');
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Permissions and password must be respectively an array and a string');
 
         $this->exception(function() use ($document) {
-                    $document->setPermissions(array() , null);
+                    $document->setPermissions(array(), null);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Permissions and password must be respectively an array and a string');
@@ -278,7 +278,7 @@ class Document extends atoum
         };
 
         $this->exception(function() use ($document) {
-                    $document->setPermissions([ ] , 'test string');
+                    $document->setPermissions([], 'test string');
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Error while setting the list of permissions and master password for the document')
@@ -295,7 +295,7 @@ class Document extends atoum
 
         $mock->getMockController()->SetDocumentAccessPermissions = true;
 
-        $this->object($document->setPermissions([ ] , 'random string'))
+        $this->object($document->setPermissions([], 'random string'))
                 ->isInstanceOf('Awakenweb\Livedocx\Document')
                 ->isIdenticalTo($document);
     }
@@ -330,14 +330,14 @@ class Document extends atoum
             $ret                                = new stdClass();
             $ret->GetAllMetafilesResult         = new \stdClass();
             $ret->GetAllMetafilesResult->string = [
-                base64_encode('random string') ,
+                base64_encode('random string'),
                 base64_encode('another string')
             ];
             return $ret;
         };
 
         $this->array($document->getMetaFiles())
-                ->containsValues([ 'random string' , 'another string' ]);
+                ->containsValues([ 'random string', 'another string']);
     }
 
     /**
@@ -388,7 +388,7 @@ class Document extends atoum
         $document = new LDXDocument($mock);
 
         $this->exception(function() use ($document) {
-                    $document->getMetaFiles(10 , 0);
+                    $document->getMetaFiles(10, 0);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Start page for metafiles must be inferior to end page');
@@ -408,7 +408,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getMetaFiles(2 , 3))
+        $this->array($document->getMetaFiles(2, 3))
                 ->isEmpty();
     }
 
@@ -424,14 +424,14 @@ class Document extends atoum
             $ret                             = new stdClass();
             $ret->GetMetafilesResult         = new \stdClass();
             $ret->GetMetafilesResult->string = [
-                base64_encode('random string') ,
+                base64_encode('random string'),
                 base64_encode('another string')
             ];
             return $ret;
         };
 
-        $this->array($document->getMetaFiles(1 , 2))
-                ->containsValues([ 'random string' , 'another string' ]);
+        $this->array($document->getMetaFiles(1, 2))
+                ->containsValues([ 'random string', 'another string']);
     }
 
     /**
@@ -449,7 +449,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getMetaFiles(1 , 2))
+        $this->array($document->getMetaFiles(1, 2))
                 ->contains('random string');
     }
 
@@ -466,7 +466,7 @@ class Document extends atoum
         };
 
         $this->exception(function() use ($document) {
-                    $document->getMetaFiles(1 , 2);
+                    $document->getMetaFiles(1, 2);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Error while retrieving the document from Livedocx service')
@@ -487,7 +487,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test'))
+        $this->array($document->getAsBitmaps(1, 'test'))
                 ->isEmpty();
     }
 
@@ -503,14 +503,14 @@ class Document extends atoum
             $ret                              = new stdClass();
             $ret->GetAllBitmapsResult         = new stdClass();
             $ret->GetAllBitmapsResult->string = [
-                base64_encode('random string') ,
+                base64_encode('random string'),
                 base64_encode('another string')
             ];
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test'))
-                ->containsValues([ 'random string' , 'another string' ]);
+        $this->array($document->getAsBitmaps(1, 'test'))
+                ->containsValues([ 'random string', 'another string']);
     }
 
     /**
@@ -528,7 +528,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test'))
+        $this->array($document->getAsBitmaps(1, 'test'))
                 ->contains('random string');
     }
 
@@ -545,7 +545,7 @@ class Document extends atoum
         };
 
         $this->exception(function() use ($document) {
-                    $document->getAsBitmaps(1 , 'test');
+                    $document->getAsBitmaps(1, 'test');
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Error while retrieving the final document as bitmaps from Livedocx service')
@@ -561,13 +561,13 @@ class Document extends atoum
         $document = new LDXDocument($mock);
 
         $this->exception(function() use ($document) {
-                    $document->getAsBitmaps(1 , 'test' , 10 , 0);
+                    $document->getAsBitmaps(1, 'test', 10, 0);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Start page for bitmaps must be inferior to end page');
 
         $this->exception(function() use ($document) {
-                    $document->getAsBitmaps(null , 10 , 1 , 10);
+                    $document->getAsBitmaps(null, 10, 1, 10);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('zoomFactor and format must be respectively integer and string');
@@ -587,7 +587,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test' , 2 , 3))
+        $this->array($document->getAsBitmaps(1, 'test', 2, 3))
                 ->isEmpty();
     }
 
@@ -603,14 +603,14 @@ class Document extends atoum
             $ret                           = new stdClass();
             $ret->GetBitmapsResult         = new stdClass();
             $ret->GetBitmapsResult->string = [
-                base64_encode('random string') ,
+                base64_encode('random string'),
                 base64_encode('another string')
             ];
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test' , 1 , 2))
-                ->containsValues([ 'random string' , 'another string' ]);
+        $this->array($document->getAsBitmaps(1, 'test', 1, 2))
+                ->containsValues([ 'random string', 'another string']);
     }
 
     /**
@@ -628,7 +628,7 @@ class Document extends atoum
             return $ret;
         };
 
-        $this->array($document->getAsBitmaps(1 , 'test' , 1 , 2))
+        $this->array($document->getAsBitmaps(1, 'test', 1, 2))
                 ->contains('random string');
     }
 
@@ -645,7 +645,7 @@ class Document extends atoum
         };
 
         $this->exception(function() use ($document) {
-                    $document->getAsBitmaps(1 , 'test' , 1 , 2);
+                    $document->getAsBitmaps(1, 'test', 1, 2);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\DocumentException')
                 ->hasMessage('Error while retrieving the final document as paginated bitmaps from Livedocx service')

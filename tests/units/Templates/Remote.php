@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx\tests\units\Templates;
 
-require_once '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use atoum;
 use Awakenweb\Livedocx\Exceptions\SoapException;
@@ -267,7 +267,7 @@ class Remote extends atoum
     public function booleanProvider()
     {
         return [
-            [ false ] , [ true ] , [ 1 ] , [ 0 ]
+            [ false], [ true], [ 1], [ 0]
         ];
     }
 

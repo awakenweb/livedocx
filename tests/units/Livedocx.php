@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx\tests\units;
 
-require_once '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use atoum;
 use Awakenweb\Livedocx\Exceptions\SoapException;

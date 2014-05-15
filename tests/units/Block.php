@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx\tests\units;
 
-require_once '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use atoum;
 use Awakenweb\Livedocx\Block as LDXBlock;
@@ -19,7 +19,7 @@ class Block extends atoum
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
-        $this->exception(function () use ($blockname , $block) {
+        $this->exception(function () use ($blockname, $block) {
                     $block->setName($blockname);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\BlockException')
@@ -34,8 +34,8 @@ class Block extends atoum
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
 
-        $this->exception(function () use ($block , $key) {
-                    $block->bind($key , 'random value');
+        $this->exception(function () use ($block, $key) {
+                    $block->bind($key, 'random value');
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\BlockException')
                 ->hasMessage('Block binding key must be a non empty string');
@@ -49,8 +49,8 @@ class Block extends atoum
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
 
-        $this->exception(function () use ($block , $value) {
-                    $block->bind('randomKey' , $value);
+        $this->exception(function () use ($block, $value) {
+                    $block->bind('randomKey', $value);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\BlockException')
                 ->hasMessage('Block binding value must be a non empty string or number');
@@ -66,13 +66,13 @@ class Block extends atoum
 
         $this->when(function() use ($block) {
                     $block->bind([
-                        'testKey'  => 'testValue' ,
+                        'testKey'  => 'testValue',
                         'testKey2' => 'testValue2'
                     ]);
                 })
                 ->array($block->retrieveValues())
-                ->containsValues([ 'testValue' , 'testValue2' ])
-                ->hasKeys([ 'testKey' , 'testKey2' ]);
+                ->containsValues([ 'testValue', 'testValue2'])
+                ->hasKeys([ 'testKey', 'testKey2']);
     }
 
     /**
@@ -96,12 +96,12 @@ class Block extends atoum
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
-        $block->bind('test' , 'my test value')
-                ->bind('thisIsATest' , 'another test value');
+        $block->bind('test', 'my test value')
+                ->bind('thisIsATest', 'another test value');
 
         $this->array($block->retrieveValues())
-                ->hasKeys(['test' , 'thisIsATest' ])
-                ->containsValues(['my test value' , 'another test value' ]);
+                ->hasKeys(['test', 'thisIsATest'])
+                ->containsValues(['my test value', 'another test value']);
     }
 
     /**
@@ -143,11 +143,11 @@ class Block extends atoum
         $mock->getMockController()->GetBlockNames = function() {
             $ret                              = new stdClass();
             $ret->GetBlockNamesResult         = new stdClass();
-            $ret->GetBlockNamesResult->string = ['value1' , 'value2' ];
+            $ret->GetBlockNamesResult->string = ['value1', 'value2'];
             return $ret;
         };
         $this->array($block->getAllBlockNames())
-                ->containsValues(['value1' , 'value2' ]);
+                ->containsValues(['value1', 'value2']);
     }
 
     public function test_getAllBlockNames_return_array_when_a_string()
@@ -162,7 +162,7 @@ class Block extends atoum
             return $ret;
         };
         $this->array($block->getAllBlockNames())
-                ->containsValues(['value1' ]);
+                ->containsValues(['value1']);
     }
 
     /**
@@ -210,11 +210,11 @@ class Block extends atoum
         $mock->getMockController()->GetBlockFieldNames = function() {
             $ret                                   = new stdClass();
             $ret->GetBlockFieldNamesResult         = new stdClass();
-            $ret->GetBlockFieldNamesResult->string = ['value1' , 'value2' ];
+            $ret->GetBlockFieldNamesResult->string = ['value1', 'value2'];
             return $ret;
         };
         $this->array($block->getFieldNames())
-                ->containsValues(['value1' , 'value2' ]);
+                ->containsValues(['value1', 'value2']);
     }
 
     /**
@@ -232,7 +232,7 @@ class Block extends atoum
             return $ret;
         };
         $this->array($block->getFieldNames())
-                ->containsValues(['value1' ]);
+                ->containsValues(['value1']);
     }
 
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -244,21 +244,21 @@ class Block extends atoum
     public function fakeKeysForBlock()
     {
         return [
-            ['' ] ,
-            [ null ] ,
-            [new stdClass() ] ,
-            [1234567890 ] ,
-            [123.123456 ]
+            [''],
+            [ null],
+            [new stdClass()],
+            [1234567890],
+            [123.123456]
         ];
     }
 
     public function fakeValuesForBlock()
     {
         return [
-            ['' ] ,
-            [ null ] ,
-            [new stdClass() ] ,
-            [array() ]
+            [''],
+            [ null],
+            [new stdClass()],
+            [array()]
         ];
     }
 

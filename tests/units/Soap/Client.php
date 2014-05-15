@@ -26,7 +26,7 @@
 
 namespace Awakenweb\Livedocx\tests\units\Soap;
 
-require_once '/vendor/autoload.php';
+require_once 'vendor/autoload.php';
 
 use atoum;
 use Awakenweb\Livedocx\Soap\Client as LdxClient;

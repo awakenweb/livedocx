@@ -26,6 +26,14 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\FileExistException;
+use Awakenweb\Livedocx\Exceptions\Image\DeleteException;
+use Awakenweb\Livedocx\Exceptions\Image\DownloadException;
+use Awakenweb\Livedocx\Exceptions\Image\ImageException;
+use Awakenweb\Livedocx\Exceptions\Image\StatusException;
+use Awakenweb\Livedocx\Exceptions\Image\UploadException;
+use Awakenweb\Livedocx\Exceptions\SoapException;
+
 /**
  * Description of Image
  *
@@ -54,7 +62,7 @@ class Image
      * @param string      $filename
      * @param string|null $directory
      */
-    public function setFilename($filename, $directory = null)
+    public function setFilename($filename , $directory = null)
     {
         $this->filename  = $filename;
         $this->directory = $directory;
@@ -70,12 +78,12 @@ class Image
      */
     public function getName($full = false)
     {
-        if (!$full) {
+        if ( ! $full ) {
             return $this->filename;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->filename : $this->filename;
 
-        return str_replace('//', '/', $filename);
+        return str_replace('//' , '/' , $filename);
     }
 
     /**
@@ -83,20 +91,20 @@ class Image
      *
      * @return array
      *
-     * @throws Exceptions\ImageException
+     * @throws StatusException
      */
     public function listAll()
     {
         try {
-            $return = [];
+            $return = [ ];
             $result = $this->getSoapClient()->ListImages();
-            if (isset($result->ListImagesResult)) {
+            if ( isset($result->ListImagesResult) ) {
                 $return = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListImagesResult);
             }
 
             return $return;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\ImageException('Error while obtaining the list of all images', $ex);
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while obtaining the list of all images' , $ex);
         }
     }
 
@@ -105,21 +113,21 @@ class Image
      *
      * @return array
      *
-     * @throws Exceptions\ImageException
+     * @throws StatusException
      */
     public function getAcceptedFormats()
     {
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetImageImportFormats();
-            if (isset($result->GetImageImportFormatsResult->string)) {
+            if ( isset($result->GetImageImportFormatsResult->string) ) {
                 $ret = $result->GetImageImportFormatsResult->string;
-                $ret = array_map('strtolower', $ret);
+                $ret = array_map('strtolower' , $ret);
             }
 
             return $ret;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\ImageException('Error while obtaining the list of accepted image formats', $ex);
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while obtaining the list of accepted image formats' , $ex);
         }
     }
 
@@ -128,48 +136,49 @@ class Image
      *
      * @return array
      *
-     * @throws Exceptions\ImageException
+     * @throws StatusException
      */
     public function getAvailableReturnFormats()
     {
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetImageExportFormats();
-            if (isset($result->GetImageExportFormatsResult->string)) {
+            if ( isset($result->GetImageExportFormatsResult->string) ) {
                 $ret = $result->GetImageExportFormatsResult->string;
-                $ret = array_map('strtolower', $ret);
+                $ret = array_map('strtolower' , $ret);
             }
 
             return $ret;
-        } catch (Exceptions\SoapException $ex) {
-            throw new Exceptions\ImageException('Error while obtaining the list of all available image formats', $ex);
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while obtaining the list of all available image formats' , $ex);
         }
     }
 
     /**
      * Upload the active image on the livedocx server
      *
-     * @return \Awakenweb\Livedocx\Image
+     * @return Image
      *
-     * @throws Exceptions\ImageException
+     * @throws UploadException
+     * @throws FileExistException
      */
     public function upload()
     {
         $filename = $this->getName(true);
 
-        if (!is_readable($filename)) {
-            throw new Exceptions\ImageException('Image file from disk is not readable');
+        if ( ! is_readable($filename) ) {
+            throw new FileExistException('Image file from disk is not readable');
         }
 
         try {
             $this->getSoapClient()->UploadImage(array(
-                'image'    => base64_encode(file_get_contents($filename)),
-                'filename' => basename($filename),
+                'image'    => base64_encode(file_get_contents($filename)) ,
+                'filename' => basename($filename) ,
             ));
 
             return $this;
-        } catch (Exceptions\SoapException $e) {
-            throw new Exceptions\ImageException('Error while uploading the image', $e);
+        } catch ( SoapException $e ) {
+            throw new UploadException('Error while uploading the image' , $e);
         }
     }
 
@@ -178,18 +187,18 @@ class Image
      *
      * @return string
      *
-     * @throws Exceptions\ImageException
+     * @throws DownloadException
      */
     public function download()
     {
         try {
             $result = $this->getSoapClient()->DownloadImage(array(
-                'filename' => basename($this->filename),
+                'filename' => basename($this->filename) ,
             ));
 
             return base64_decode($result->DownloadImageResult);
-        } catch (Exceptions\SoapException $e) {
-            throw new Exceptions\ImageException('Error while downloading the image', $e);
+        } catch ( SoapException $e ) {
+            throw new DownloadException('Error while downloading the image' , $e);
         }
     }
 
@@ -198,38 +207,38 @@ class Image
      *
      * @return boolean
      *
-     * @throws Exceptions\ImageException
+     * @throws StatusException
      */
     public function exists()
     {
         try {
             $result = $this->getSoapClient()->ImageExists(array(
-                'filename' => basename($this->filename),
+                'filename' => basename($this->filename) ,
             ));
 
-            return (boolean) $result->ImageExistsResult;
-        } catch (Exceptions\SoapException $e) {
-            throw new Exceptions\ImageException('Error while verifying existence of the image', $e);
+            return ( boolean ) $result->ImageExistsResult;
+        } catch ( SoapException $e ) {
+            throw new StatusException('Error while verifying existence of the image' , $e);
         }
     }
 
     /**
      * Delete the file from the Livedocx service
      *
-     * @return \Awakenweb\Livedocx\Image
+     * @return Image
      *
-     * @throws Exceptions\ImageException
+     * @throws DeleteException
      */
     public function delete()
     {
         try {
             $this->getSoapClient()->DeleteImage([
-                'filename' => basename($this->getName(true)),
+                'filename' => basename($this->getName(true)) ,
             ]);
 
             return $this;
-        } catch (Exceptions\SoapException $e) {
-            throw new Exceptions\ImageException('Error while deleting the image', $e);
+        } catch ( SoapException $e ) {
+            throw new DeleteException('Error while deleting the image' , $e);
         }
     }
 

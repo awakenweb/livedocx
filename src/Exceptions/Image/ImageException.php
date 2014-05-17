@@ -24,7 +24,9 @@
  * THE SOFTWARE.
  */
 
-namespace Awakenweb\Livedocx\Exceptions;
+namespace Awakenweb\Livedocx\Exceptions\Image;
+
+use Awakenweb\Livedocx\Exceptions\LivedocxException;
 
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>

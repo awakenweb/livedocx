@@ -26,8 +26,9 @@
 
 namespace Awakenweb\Livedocx;
 
-use Awakenweb\Livedocx\Exceptions\LivedocxException;
+use Awakenweb\Livedocx\Exceptions\DeclarationException;
 use Awakenweb\Livedocx\Exceptions\SoapException;
+use Awakenweb\Livedocx\Soap\Client;
 use Awakenweb\Livedocx\Templates\Local as Local;
 use Awakenweb\Livedocx\Templates\Remote as Remote;
 
@@ -50,10 +51,10 @@ class Livedocx
      * Create a new instance of Livedocx by providing an instance of Soap\Client and
      * a values Container
      *
-     * @param \Awakenweb\Livedocx\Soap\Client $client
-     * @param \Awakenweb\Livedocx\Container $container
+     * @param Client $client
+     * @param Container $container
      */
-    public function __construct(Soap\Client $client, Container $container)
+    public function __construct(Client $client , Container $container)
     {
         $this->soapClient = $client;
         $this->container  = $container;
@@ -115,11 +116,11 @@ class Livedocx
      *
      * @param null|string $value
      *
-     * @return \Awakenweb\Livedocx\Livedocx
+     * @return Livedocx
      */
-    public function assign($key, $value = null)
+    public function assign($key , $value = null)
     {
-        $this->container->assign($key, $value);
+        $this->container->assign($key , $value);
 
         return $this;
     }
@@ -135,7 +136,7 @@ class Livedocx
     {
 
         $blocks = $this->container->getBlocks();
-        $fields = array_merge($this->container->getFields(), $this->container->getImages());
+        $fields = array_merge($this->container->getFields() , $this->container->getImages());
 
         $this->declareListOfBlocks($blocks)
                 ->declareListOfValues($fields);
@@ -150,22 +151,22 @@ class Livedocx
      *
      * @return Livedocx
      *
-     * @throws LivedocxException
+     * @throws DeclarationException
      */
     protected function declareListOfBlocks($blocks)
     {
-        foreach ($blocks as $block) {
+        foreach ( $blocks as $block ) {
             try {
                 $this->getSoapClient()->SetBlockFieldValues(array(
-                    'blockName'        => $block->getName(),
+                    'blockName'        => $block->getName() ,
                     'blockFieldValues' => $this->getSoapClient()->convertArray($block->retrieveValues())
                 ));
-            } catch (SoapException $ex) {
+            } catch ( SoapException $ex ) {
                 $s = '';
-                if (!is_null($block->getName())) {
+                if ( ! is_null($block->getName()) ) {
                     $s.= " (block: {$block->getName()})";
                 }
-                throw new LivedocxException("Error while sending blocks informations to Livedocx service" . $s, $ex);
+                throw new DeclarationException("Error while sending blocks informations to Livedocx service" . $s , $ex);
             }
         }
         return $this;
@@ -176,9 +177,9 @@ class Livedocx
      *
      * @param array $fields
      *
-     * @return \Awakenweb\Livedocx\Livedocx
+     * @return Livedocx
      *
-     * @throws LivedocxException
+     * @throws DeclarationException
      */
     protected function declareListOfValues($fields)
     {
@@ -186,8 +187,8 @@ class Livedocx
             $this->getSoapClient()->SetFieldValues(array(
                 'fieldValues' => $this->getSoapClient()->convertArray($fields)
             ));
-        } catch (SoapException $e) {
-            throw new LivedocxException('Error while sending the fields/values binding to Livedocx service', $e);
+        } catch ( SoapException $e ) {
+            throw new DeclarationException('Error while sending the fields/values binding to Livedocx service' , $e);
         }
 
         return $this;

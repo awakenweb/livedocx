@@ -32,6 +32,7 @@ use Awakenweb\Livedocx\Exceptions\Templates\ActiveException;
 use Awakenweb\Livedocx\Exceptions\Templates\DeleteException;
 use Awakenweb\Livedocx\Exceptions\Templates\DownloadException;
 use Awakenweb\Livedocx\Exceptions\Templates\InvalidException;
+use Awakenweb\Livedocx\Exceptions\Templates\NonActiveException;
 use Awakenweb\Livedocx\Exceptions\Templates\StatusException;
 use Awakenweb\Livedocx\Exceptions\Templates\TemplateException;
 use Awakenweb\Livedocx\Template;
@@ -89,6 +90,39 @@ class Remote extends Template
         } catch ( SoapException $ex ) {
             throw new StatusException('Error while verifying the existence of a remote template' , $ex);
         }
+    }
+
+    /**
+     * Return the list of all fields in the active template
+     *
+     * @return array
+     *
+     * @throws StatusException
+     * @throws NonActiveException
+     */
+    public function getFieldNames()
+    {
+        if ( ! $this->isActive ) {
+            throw new NonActiveException('You can only get the field names of the active template');
+        }
+
+        $ret = array();
+
+        try {
+            $result = $this->getSoapClient()->GetFieldNames();
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while getting the list of all fields in the active template' , $ex);
+        }
+
+        if ( isset($result->GetFieldNamesResult->string) ) {
+            if ( is_array($result->GetFieldNamesResult->string) ) {
+                $ret = $result->GetFieldNamesResult->string;
+            } else {
+                $ret[] = $result->GetFieldNamesResult->string;
+            }
+        }
+
+        return $ret;
     }
 
     /**

@@ -18,9 +18,9 @@ class Remote extends atoum
 
     public function test_setters_and_getters()
     {
-        $local = new LdxRemote($this->scaffoldMock());
-        $local->setName('test.dat');
-        $this->string($local->getName())
+        $remote = new LdxRemote($this->scaffoldMock());
+        $remote->setName('test.dat');
+        $this->string($remote->getName())
                 ->isEqualTo('test.dat');
     }
 
@@ -256,6 +256,126 @@ class Remote extends atoum
 
         $this->object($remote->delete())
                 ->isIdenticalTo($remote);
+    }
+
+    /**
+     *
+     */
+    public function test_getFieldNames_throw_exception_when_template_is_not_active()
+    {
+        $mock = $this->scaffoldMock();
+
+        $remote = new LdxRemote($mock);
+
+        $this->exception(function() use ($remote) {
+                    $remote->getFieldNames();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\NonActiveException')
+                ->hasMessage('You can only get the field names of the active template');
+    }
+
+    public function test_getFieldNames_throw_exception_when_soap_error_occurs()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetRemoteTemplate = true;
+        $mock->getMockController()->TemplateExists    = function() {
+            $ret                       = new stdClass();
+            $ret->TemplateExistsResult = true;
+            return $ret;
+        };
+        $mock->getMockController()->GetFieldNames = function() {
+            throw new SoapException('random exception');
+        };
+
+        $remote = new LdxRemote($mock);
+
+        $remote->setName('test-remote-1.dat');
+
+        $this->exception(function() use ($remote) {
+                    $remote->setAsActive();
+                    $remote->getFieldNames(['random value' , 'test' ]);
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
+                ->hasMessage('Error while getting the list of all fields in the active template')
+                ->hasNestedException();
+    }
+
+    public function test_getFieldNames_return_empty_array()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetRemoteTemplate = true;
+        $mock->getMockController()->TemplateExists    = function() {
+            $ret                       = new stdClass();
+            $ret->TemplateExistsResult = true;
+            return $ret;
+        };
+        $mock->getMockController()->GetFieldNames = function() {
+            return new \stdClass();
+        };
+
+        $remote = new LdxRemote($mock);
+
+
+        $remote->setName('test-remote-2.dat');
+        $remote->setAsActive();
+
+        $this->array($remote->getFieldNames())
+                ->isEmpty();
+    }
+
+    public function test_getFieldNames_return_array_with_an_array()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetRemoteTemplate = true;
+        $mock->getMockController()->TemplateExists    = function() {
+            $ret                       = new stdClass();
+            $ret->TemplateExistsResult = true;
+            return $ret;
+        };
+        $mock->getMockController()->GetFieldNames = function() {
+            $ret                              = new \stdClass();
+            $ret->GetFieldNamesResult         = new \stdClass();
+            $ret->GetFieldNamesResult->string = [ 'value' , 'value2' , 'value3' ];
+            return $ret;
+        };
+
+        $remote = new LdxRemote($mock);
+
+
+        $remote->setName('test-remote-3.dat');
+        $remote->setAsActive();
+
+        $this->array($remote->getFieldNames())
+                ->containsValues([ 'value' , 'value2' , 'value3' ]);
+    }
+
+    public function test_getFieldNames_return_array_with_a_string()
+    {
+        $mock = $this->scaffoldMock();
+
+        $mock->getMockController()->SetRemoteTemplate = true;
+        $mock->getMockController()->TemplateExists    = function() {
+            $ret                       = new stdClass();
+            $ret->TemplateExistsResult = true;
+            return $ret;
+        };
+        $mock->getMockController()->GetFieldNames = function() {
+            $ret                              = new \stdClass();
+            $ret->GetFieldNamesResult         = new \stdClass();
+            $ret->GetFieldNamesResult->string = 'value';
+            return $ret;
+        };
+
+        $remote = new LdxRemote($mock);
+
+        $remote->setName('test-remote-4.dat');
+        $remote->setAsActive();
+
+        $this->array($remote->getFieldNames())
+                ->containsValues([ 'value' ]);
     }
 
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */

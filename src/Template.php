@@ -182,39 +182,6 @@ abstract class Template
         }
     }
 
-    /**
-     * Return the list of all fields in the active template
-     *
-     * @return
-     *
-     * @throws StatusException
-     * @throws NonActiveException
-     */
-    public function getFieldNames()
-    {
-        if ( ! $this->isActive ) {
-            throw new NonActiveException('You can only get the field names of the active template');
-        }
-
-        $ret = array();
-
-        try {
-            $result = $this->getSoapClient()->GetFieldNames();
-        } catch ( SoapException $ex ) {
-            throw new StatusException('Error while getting the list of all fields in the active template' , $ex);
-        }
-
-        if ( isset($result->GetFieldNamesResult->string) ) {
-            if ( is_array($result->GetFieldNamesResult->string) ) {
-                $ret = $result->GetFieldNamesResult->string;
-            } else {
-                $ret[] = $result->GetFieldNamesResult->string;
-            }
-        }
-
-        return $ret;
-    }
-
     abstract public function getName();
 
     abstract public function setAsActive();

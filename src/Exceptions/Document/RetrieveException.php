@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-namespace Awakenweb\Livedocx\Exceptions;
+namespace Awakenweb\Livedocx\Exceptions\Document;
 
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
  */
-class DocumentException extends LivedocxException
+class RetrieveException extends DocumentException
 {
 
 }

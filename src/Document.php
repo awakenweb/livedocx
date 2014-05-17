@@ -26,7 +26,14 @@
 
 namespace Awakenweb\Livedocx;
 
-use Awakenweb\Livedocx\Exceptions\DocumentException;
+use Awakenweb\Livedocx\Exceptions\Document\BitmapsException;
+use Awakenweb\Livedocx\Exceptions\Document\CreateException;
+use Awakenweb\Livedocx\Exceptions\Document\InvalidException;
+use Awakenweb\Livedocx\Exceptions\Document\MetafilesException;
+use Awakenweb\Livedocx\Exceptions\Document\PasswordException;
+use Awakenweb\Livedocx\Exceptions\Document\PermissionsException;
+use Awakenweb\Livedocx\Exceptions\Document\RetrieveException;
+use Awakenweb\Livedocx\Exceptions\Document\StatusException;
 use Awakenweb\Livedocx\Exceptions\SoapException;
 
 /**
@@ -39,13 +46,13 @@ class Document
 
     /**
      *
-     * @var type
+     * @var string
      */
     protected $data;
 
     /**
      *
-     * @var type
+     * @var string
      */
     protected $format;
 
@@ -73,7 +80,7 @@ class Document
      *
      * @return array
      *
-     * @throws DocumentException
+     * @throws StatusException
      */
     public function getAvailableFormats()
     {
@@ -87,7 +94,7 @@ class Document
 
             return $ret;
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while getting the list of available document formats' , $ex);
+            throw new StatusException('Error while getting the list of available document formats' , $ex);
         }
     }
 
@@ -98,7 +105,7 @@ class Document
      *
      * @return Document
      *
-     * @throws DocumentException
+     * @throws PasswordException
      */
     public function setPassword($password)
     {
@@ -109,7 +116,7 @@ class Document
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while setting a password for the document' , $ex);
+            throw new PasswordException('Error while setting a password for the document' , $ex);
         }
     }
 
@@ -119,12 +126,13 @@ class Document
      * @param array  $permissions
      * @param string $password
      *
-     * @throws DocumentException
+     * @throws PermissionsException
+     * @throws InvalidException
      */
     public function setPermissions($permissions , $password)
     {
         if ( ! is_array($permissions) || ! is_string($password) || $password === '' ) {
-            throw new DocumentException('Permissions and password must be respectively an array and a string');
+            throw new InvalidException('Permissions and password must be respectively an array and a string');
         }
         try {
             $this->getSoapClient()->SetDocumentAccessPermissions(array(
@@ -134,7 +142,7 @@ class Document
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while setting the list of permissions and master password for the document' , $ex);
+            throw new PermissionsException('Error while setting the list of permissions and master password for the document' , $ex);
         }
     }
 
@@ -143,7 +151,7 @@ class Document
      *
      * @return array
      *
-     * @throws DocumentException
+     * @throws PermissionsException
      */
     public function getAccessOptions()
     {
@@ -156,7 +164,7 @@ class Document
 
             return $ret;
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while getting the list of available permissions for the document' , $ex);
+            throw new PermissionsException('Error while getting the list of available permissions for the document' , $ex);
         }
     }
 
@@ -165,7 +173,7 @@ class Document
      *
      * @return Document
      *
-     * @throws DocumentException
+     * @throws CreateException
      */
     public function create()
     {
@@ -174,7 +182,7 @@ class Document
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new DocumentException("Error while mergin fields to the template on Livedocx service" , $ex);
+            throw new CreateException("Error while mergin fields to the template on Livedocx service" , $ex);
         }
     }
 
@@ -186,7 +194,8 @@ class Document
      *
      * @return string
      *
-     * @throws DocumentException
+     * @throws InvalidException
+     * @throws RetrieveException
      */
     public function retrieve($format = null)
     {
@@ -194,7 +203,7 @@ class Document
             $format = $this->format;
         }
         if ( is_null($format) ) {
-            throw new DocumentException('You must provide a format to retrieve the document');
+            throw new InvalidException('You must provide a format to retrieve the document');
         }
         $format = strtolower($format);
 
@@ -206,7 +215,7 @@ class Document
 
             return $this->data;
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while retrieving the final document from Livedocx service' , $ex);
+            throw new RetrieveException('Error while retrieving the final document from Livedocx service' , $ex);
         }
     }
 
@@ -220,7 +229,8 @@ class Document
      *
      * @return array
      *
-     * @throws DocumentException @see Document::getAllMetaFiles @see Document::getPaginatedMetafiles
+     * @throws MetafilesException @see Document::getAllMetaFiles @see Document::getPaginatedMetaFiles
+     * @throws InvalidException @see Document::getPaginatedMetaFiles
      */
     public function getMetaFiles($from = null , $to = null)
     {
@@ -234,34 +244,35 @@ class Document
     }
 
     /**
-     * Get paginated results for
+     * Get a paginated list of document as Metafile images.
      *
-     * @param type $from
-     * @param type $to
+     * @param int $from
+     * @param int $to
      *
-     * @return type
+     * @return array
      *
-     * @throws DocumentException
+     * @throws MetafilesException
+     * @throws InvalidException
      */
     protected function getPaginatedMetaFiles($from , $to)
     {
-        if ($from > $to) {
-            throw new DocumentException('Start page for metafiles must be inferior to end page');
+        if ( $from > $to ) {
+            throw new InvalidException('Start page for metafiles must be inferior to end page');
         }
 
         $ret = array();
         try {
             $result = $this->getSoapClient()->GetMetafiles(array(
-                'fromPage' => (integer) $from ,
-                'toPage'   => (integer) $to ,
+                'fromPage' => ( integer ) $from ,
+                'toPage'   => ( integer ) $to ,
             ));
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while retrieving the document from Livedocx service' , $ex);
+            throw new MetafilesException('Error while retrieving the document from Livedocx service' , $ex);
         }
         if ( isset($result->GetMetafilesResult->string) ) {
-            $pageCounter = (integer) $from;
+            $pageCounter = ( integer ) $from;
             if ( is_array($result->GetMetafilesResult->string) ) {
-                foreach ($result->GetMetafilesResult->string as $string) {
+                foreach ( $result->GetMetafilesResult->string as $string ) {
                     $ret[ $pageCounter ] = base64_decode($string);
                     $pageCounter ++;
                 }
@@ -274,9 +285,11 @@ class Document
     }
 
     /**
+     *  Get a complete list of document as Metafile images.
      *
-     * @return type
-     * @throws DocumentException
+     * @return array
+     *
+     * @throws MetafilesException
      */
     protected function getAllMetafiles()
     {
@@ -284,12 +297,12 @@ class Document
         try {
             $result = $this->getSoapClient()->GetAllMetafiles();
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while retrieving the document from Livedocx service' , $ex);
+            throw new MetafilesException('Error while retrieving the document from Livedocx service' , $ex);
         }
         if ( isset($result->GetAllMetafilesResult->string) ) {
             $pageCounter = 1;
             if ( is_array($result->GetAllMetafilesResult->string) ) {
-                foreach ($result->GetAllMetafilesResult->string as $string) {
+                foreach ( $result->GetAllMetafilesResult->string as $string ) {
                     $ret[ $pageCounter ] = base64_decode($string);
                     $pageCounter ++;
                 }
@@ -311,14 +324,15 @@ class Document
      * @param int    $from
      * @param int    $to
      *
-     * @return type
+     * @return array
      *
-     * @throws DocumentException @see Document::getAllBitmaps @see Document::getPaginatedBitmaps
+     * @throws BitmapsException @see Document::getAllBitmaps @see Document::getPaginatedBitmaps
+     * @throws InvalidException
      */
     public function getAsBitmaps($zoomFactor , $format , $from = null , $to = null)
     {
         if ( ! is_int($zoomFactor) || ! is_string($format) ) {
-            throw new DocumentException('zoomFactor and format must be respectively integer and string');
+            throw new InvalidException('zoomFactor and format must be respectively integer and string');
         }
         if ( is_null($from) ) {
             $ret = $this->getAllBitmaps($zoomFactor , $format);
@@ -337,29 +351,30 @@ class Document
      *
      * @return array
      *
-     * @throws DocumentException
+     * @throws BitmapsException
+     * @throws InvalidException
      */
     protected function getPaginatedBitmaps($zoomFactor , $format , $from , $to)
     {
-        if ($from > $to) {
-            throw new DocumentException('Start page for bitmaps must be inferior to end page');
+        if ( $from > $to ) {
+            throw new InvalidException('Start page for bitmaps must be inferior to end page');
         }
 
         $ret = array();
         try {
             $result = $this->getSoapClient()->GetBitmaps(array(
-                'fromPage'   => (integer) $from ,
-                'toPage'     => (integer) $to ,
-                'zoomFactor' => (integer) $zoomFactor ,
-                'format'     => (string) $format ,
+                'fromPage'   => ( integer ) $from ,
+                'toPage'     => ( integer ) $to ,
+                'zoomFactor' => ( integer ) $zoomFactor ,
+                'format'     => ( string ) $format ,
             ));
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while retrieving the final document as paginated bitmaps from Livedocx service' , $ex);
+            throw new BitmapsException('Error while retrieving the final document as paginated bitmaps from Livedocx service' , $ex);
         }
         if ( isset($result->GetBitmapsResult->string) ) {
-            $pageCounter = (integer) $from;
+            $pageCounter = ( integer ) $from;
             if ( is_array($result->GetBitmapsResult->string) ) {
-                foreach ($result->GetBitmapsResult->string as $string) {
+                foreach ( $result->GetBitmapsResult->string as $string ) {
                     $ret[ $pageCounter ] = base64_decode($string);
                     $pageCounter ++;
                 }
@@ -379,24 +394,24 @@ class Document
      *
      * @return array
      *
-     * @throws DocumentException
+     * @throws BitmapsException
      */
     protected function getAllBitmaps($zoomFactor , $format)
     {
         $ret = array();
         try {
             $result = $this->getSoapClient()->GetAllBitmaps(array(
-                'zoomFactor' => (integer) $zoomFactor ,
-                'format'     => (string) $format ,
+                'zoomFactor' => ( integer ) $zoomFactor ,
+                'format'     => ( string ) $format ,
             ));
         } catch ( SoapException $ex ) {
-            throw new DocumentException('Error while retrieving the final document as bitmaps from Livedocx service' , $ex);
+            throw new BitmapsException('Error while retrieving the final document as bitmaps from Livedocx service' , $ex);
         }
 
         if ( isset($result->GetAllBitmapsResult->string) ) {
             $pageCounter = 1;
             if ( is_array($result->GetAllBitmapsResult->string) ) {
-                foreach ($result->GetAllBitmapsResult->string as $string) {
+                foreach ( $result->GetAllBitmapsResult->string as $string ) {
                     $ret[ $pageCounter ] = base64_decode($string);
                     $pageCounter ++;
                 }
@@ -408,107 +423,4 @@ class Document
         return $ret;
     }
 
-    /**
-     * Share a document on Livedocx service to make it available to everyone on the Internet.
-     * Return the name of the document
-     *
-     * @return string
-     *
-     * @throws DocumentException
-     */
-    /* public function share()
-      {
-      $ret = null;
-      try {
-      $result = $this->getSoapClient()->ShareDocument();
-      } catch ( SoapException $ex ) {
-      throw new DocumentException('Error while sharing a document on Livedocx service' , $ex);
-      }
-      if ( isset($result->ShareDocumentResult) ) {
-      $ret = (string) $result->ShareDocumentResult;
-      }
-
-      return $ret;
-      }/* */
-
-    /**
-     *
-     * @return
-     *
-     * @throws DocumentException
-     */
-    /* public function listAllShared()
-      {
-      $ret = array();
-      try {
-      $result = $this->getSoapClient()->ListSharedDocuments();
-      } catch ( SoapException $ex ) {
-      throw new DocumentException('Error while obtaining the list of all shared documents stored on Livedocx service' , $ex);
-      }
-      if ( isset($result->ListSharedDocumentsResult) ) {
-      $ret = $this->backendListArrayToMultiAssocArray(
-      $result->ListSharedDocumentsResult
-      );
-      }
-
-      return $ret;
-      }/* */
-
-    /**
-     * Delete a shared document from the Livedocx service service
-     *
-     * @throws DocumentException
-     */
-    /* public function deleteShared()
-      {
-      try {
-      $this->getSoapClient()->DeleteSharedDocument(array(
-      'filename' => basename($this->name) ,
-      ));
-      } catch ( SoapException $ex ) {
-      throw new DocumentException('Error while deleting a shared document from Livedocx service' , $ex);
-      }
-      }/* */
-
-    /**
-     * Download a shared document from the Livedocx service service
-     *
-     * @return string
-     *
-     * @throws DocumentException
-     */
-    /* public function downloadShared()
-      {
-      try {
-      $result = $this->getSoapClient()->DownloadSharedDocument(array(
-      'filename' => basename($this->name) ,
-      ));
-      } catch ( SoapException $ex ) {
-      throw new DocumentException('Error while deleting a shared document from Livedocx service' , $ex);
-      }
-
-      return base64_decode($result->DownloadSharedDocumentResult);
-      }/* */
-
-    /**
-     * Verify the presence of a shared document on Livedocx service
-     *
-     * @return boolean
-     *
-     * @throws DocumentException @see Document::listAllShared
-     */
-    /* public function isShared()
-      {
-      $ret             = false;
-      $sharedDocuments = $this->listAllShared();
-      foreach ($sharedDocuments as $shareDocument) {
-      if ( isset($shareDocument[ 'filename' ]) && (basename($this->name) === $shareDocument[ 'filename' ])
-      ) {
-      $ret = true;
-      break;
-      }
-      }
-
-      return $ret;
-      }/* */
 }

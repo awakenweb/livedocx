@@ -28,7 +28,12 @@ namespace Awakenweb\Livedocx\Templates;
 
 use Awakenweb\Livedocx\Exceptions\FileExistException;
 use Awakenweb\Livedocx\Exceptions\SoapException;
-use Awakenweb\Livedocx\Exceptions\TemplateException;
+use Awakenweb\Livedocx\Exceptions\Templates\ActiveException;
+use Awakenweb\Livedocx\Exceptions\Templates\DeleteException;
+use Awakenweb\Livedocx\Exceptions\Templates\DownloadException;
+use Awakenweb\Livedocx\Exceptions\Templates\InvalidException;
+use Awakenweb\Livedocx\Exceptions\Templates\StatusException;
+use Awakenweb\Livedocx\Exceptions\Templates\TemplateException;
 use Awakenweb\Livedocx\Template;
 
 /**
@@ -44,12 +49,13 @@ class Remote extends Template
      *
      * @return Remote
      *
-     * @throws TemplateException
+     * @throws ActiveException
+     * @throws InvalidException
      */
     public function setAsActive()
     {
         if ( ! $this->exists() ) {
-            throw new TemplateException('Remote template does not exist');
+            throw new FileExistException('Remote template does not exist');
         }
 
         try {
@@ -58,7 +64,7 @@ class Remote extends Template
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while setting the remote template as the active template' , $ex);
+            throw new ActiveException('Error while setting the remote template as the active template' , $ex);
         }
     }
 
@@ -71,15 +77,17 @@ class Remote extends Template
      * Check if a remote template exists on the Livedocx service
      *
      * @return boolean
+     *
+     * @throw StatusException
      */
     public function exists()
     {
         try {
             $result = $this->soapClient->templateExists(['filename' => $this->getName() ]);
 
-            return (bool) $result->TemplateExistsResult;
+            return ( bool ) $result->TemplateExistsResult;
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while verifying the existence of a remote template' , $ex);
+            throw new StatusException('Error while verifying the existence of a remote template' , $ex);
         }
     }
 
@@ -92,7 +100,7 @@ class Remote extends Template
     public function download()
     {
         if ( ! $this->exists() ) {
-            throw new TemplateException('Remote template does not exist');
+            throw new FileExistException('Remote template does not exist');
         }
 
         try {
@@ -101,7 +109,7 @@ class Remote extends Template
 
             return base64_decode($result->DownloadTemplateResult);
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while downloading the remote template from Livedocx service' , $ex);
+            throw new DownloadException('Error while downloading the remote template from Livedocx service' , $ex);
         }
     }
 
@@ -121,7 +129,7 @@ class Remote extends Template
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while deleting the remote template from Livedocx service' , $ex);
+            throw new DeleteException('Error while deleting the remote template from Livedocx service' , $ex);
         }
     }
 

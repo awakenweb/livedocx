@@ -68,7 +68,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->exists();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
                 ->hasMessage('Error while verifying the existence of a remote template')
                 ->hasNestedException();
     }
@@ -92,7 +92,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->setAsActive();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\FileExistException')
                 ->hasMessage('Remote template does not exist');
     }
 
@@ -119,7 +119,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->setAsActive();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\ActiveException')
                 ->hasMessage('Error while setting the remote template as the active template')
                 ->hasNestedException();
     }
@@ -166,7 +166,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->download();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\FileExistException')
                 ->hasMessage('Remote template does not exist');
     }
 
@@ -193,7 +193,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->download();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\DownloadException')
                 ->hasMessage('Error while downloading the remote template from Livedocx service')
                 ->hasNestedException();
     }
@@ -237,7 +237,7 @@ class Remote extends atoum
         $this->exception(function() use ($remote) {
                     $remote->delete();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\DeleteException')
                 ->hasMessage('Error while deleting the remote template from Livedocx service')
                 ->hasNestedException();
     }
@@ -267,7 +267,7 @@ class Remote extends atoum
     public function booleanProvider()
     {
         return [
-            [ false], [ true], [ 1], [ 0]
+            [ false ] , [ true ] , [ 1 ] , [ 0 ]
         ];
     }
 

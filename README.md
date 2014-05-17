@@ -56,7 +56,7 @@ This package provides support for the following API:
 * Metafiles
 * Subtemplates
 
-As there is really few documentation about the shared documents feature, I did not add support for now. I may add it when I find some doc about how to use it.
+As there is really few documentation about the shared documents feature, I did not add support for now. I may add it when I find some doc about how to use it properly.
 
 Use
 ---

@@ -26,7 +26,10 @@
 
 namespace Awakenweb\Livedocx;
 
-use Awakenweb\Livedocx\Exceptions\BlockException;
+use Awakenweb\Livedocx\Exceptions\Block\InvalidException;
+use Awakenweb\Livedocx\Exceptions\Block\NameException;
+use Awakenweb\Livedocx\Exceptions\Block\StatusException;
+use Awakenweb\Livedocx\Exceptions\SoapException;
 
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
@@ -53,12 +56,12 @@ class Block
      *
      * @param string $block_name
      *
-     * @throws BlockException
+     * @throws NameException
      */
     public function setName($block_name)
     {
         if ( ! is_string($block_name) || $block_name === '' ) {
-            throw new BlockException('Block name must be a non empty string');
+            throw new NameException('Block name must be a non empty string');
         }
         $this->block_name = $block_name;
     }
@@ -71,23 +74,23 @@ class Block
      *
      * @return Block
      *
-     * @throws BlockException
+     * @throws InvalidException
      */
     public function bind($key , $value = null)
     {
 
         if ( is_array($key) ) {
-            foreach ($key as $fieldname => $val) {
+            foreach ( $key as $fieldname => $val ) {
                 $this->bind($fieldname , $val);
             }
         } else {
 
             if ( is_null($key) || ! is_string($key) || $key === '' ) {
-                throw new BlockException('Block binding key must be a non empty string');
+                throw new InvalidException('Block binding key must be a non empty string');
             }
 
             if ( is_null($value) || ( ! is_string($value) && ! is_numeric($value)) || $value === '' ) {
-                throw new BlockException('Block binding value must be a non empty string or number');
+                throw new InvalidException('Block binding value must be a non empty string or number');
             }
 
             $this->bindings[ $key ] = $value;
@@ -119,14 +122,16 @@ class Block
      * Return the names of all blocks included in the active template
      *
      * @return array
+     *
+     * @throws StatusException
      */
     public function getAllBlockNames()
     {
         $ret = [ ];
         try {
             $result = $this->getSoapClient()->GetBlockNames();
-        } catch ( \Awakenweb\Livedocx\Exceptions\SoapException $ex ) {
-            throw new BlockException('Error while getting the list of all blocks in the active template' , $ex);
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while getting the list of all blocks in the active template' , $ex);
         }
         if ( isset($result->GetBlockNamesResult->string) ) {
             if ( is_array($result->GetBlockNamesResult->string) ) {
@@ -140,9 +145,11 @@ class Block
     }
 
     /**
-     * Return the list of all fields contained in this block inside the active template
+     *  Return the list of all fields contained in this block inside the active template
      *
-     * @return type
+     * @return array
+     *
+     * @throws StatusException
      */
     public function getFieldNames()
     {
@@ -151,8 +158,8 @@ class Block
             $result = $this->getSoapClient()->GetBlockFieldNames([
                 'blockName' => $this->getName() ,
             ]);
-        } catch ( \Awakenweb\Livedocx\Exceptions\SoapException $ex ) {
-            throw new BlockException('Error while getting the list of all fields in this block' , $ex);
+        } catch ( SoapException $ex ) {
+            throw new StatusException('Error while getting the list of all fields in this block' , $ex);
         }
 
         if ( isset($result->GetBlockFieldNamesResult->string) ) {

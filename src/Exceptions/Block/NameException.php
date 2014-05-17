@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-namespace Awakenweb\Livedocx\Exceptions;
+namespace Awakenweb\Livedocx\Exceptions\Block;
 
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
  */
-class BlockException extends LivedocxException
+class NameException extends BlockException
 {
 
 }

@@ -29,7 +29,6 @@ namespace Awakenweb\Livedocx;
 use Awakenweb\Livedocx\Exceptions\FileExistException;
 use Awakenweb\Livedocx\Exceptions\Image\DeleteException;
 use Awakenweb\Livedocx\Exceptions\Image\DownloadException;
-use Awakenweb\Livedocx\Exceptions\Image\ImageException;
 use Awakenweb\Livedocx\Exceptions\Image\StatusException;
 use Awakenweb\Livedocx\Exceptions\Image\UploadException;
 use Awakenweb\Livedocx\Exceptions\SoapException;

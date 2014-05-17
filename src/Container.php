@@ -58,7 +58,7 @@ class Container
      *
      * @return Container
      *
-     * @throws ServiceException
+     * @throws ContainerException
      */
     public function assign($fieldname , $value = null)
     {

@@ -24,12 +24,12 @@
  * THE SOFTWARE.
  */
 
-namespace Awakenweb\Livedocx\Exceptions;
+namespace Awakenweb\Livedocx\Exceptions\Templates;
 
 /**
  * @author Mathieu SAVELLI <mathieu.savelli@awakenweb.fr>
  */
-class ServiceException extends LivedocxException
+class NonActiveException extends TemplateException
 {
 
 }

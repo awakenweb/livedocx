@@ -18,11 +18,11 @@ class Local extends atoum
     /**
      * @dataProvider filenamesProvider
      */
-    public function test_setters_and_getters($filename, $dirname, $expectedName, $expectedFullName)
+    public function test_setters_and_getters($filename , $dirname , $expectedName , $expectedFullName)
     {
         $mock  = $this->scaffoldMock();
         $local = new LdxLocal($mock);
-        $local->setName($filename, $dirname);
+        $local->setName($filename , $dirname);
         $this->string($local->getName())
                 ->isEqualTo($expectedName)
                 ->string($local->getName(true))
@@ -49,7 +49,7 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->listAll();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
                 ->hasMessage('Error while getting the list of all uploaded templates')
                 ->hasNestedException();
     }
@@ -84,9 +84,9 @@ class Local extends atoum
         };
         $mock->getMockController()->backendListArrayToMultiAssocArray = function() {
             return [
-                ['filename' => 'test.doc', 'filesize' => 123456],
-                ['filename' => 'test2.doc', 'filesize' => 654321],
-                ['filename' => 'test3.doc', 'filesize' => 615243]
+                ['filename' => 'test.doc' , 'filesize' => 123456 ] ,
+                ['filename' => 'test2.doc' , 'filesize' => 654321 ] ,
+                ['filename' => 'test3.doc' , 'filesize' => 615243 ]
             ];
         };
 
@@ -107,7 +107,7 @@ class Local extends atoum
         $mock->getMockController()->GetTemplateFormats = function() {
             $r                                   = new \stdClass();
             $r->GetTemplateFormatsResult         = new \stdClass();
-            $r->GetTemplateFormatsResult->string = ['Q', 'b', 'C'];
+            $r->GetTemplateFormatsResult->string = ['Q' , 'b' , 'C' ];
 
             return $r;
         };
@@ -130,7 +130,7 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->getAcceptedTemplateFormats();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
                 ->hasMessage('Error while getting the list of accepted template formats')
                 ->hasNestedException();
     }
@@ -146,7 +146,7 @@ class Local extends atoum
         $mock->getMockController()->GetFontNames = function() {
             $r                             = new \stdClass();
             $r->GetFontNamesResult         = new \stdClass();
-            $r->GetFontNamesResult->string = ['Q', 'b', 'C'];
+            $r->GetFontNamesResult->string = ['Q' , 'b' , 'C' ];
 
             return $r;
         };
@@ -169,7 +169,7 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->getAvailableFonts();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
                 ->hasMessage('Error while getting the list of available fonts')
                 ->hasNestedException();
     }
@@ -177,7 +177,7 @@ class Local extends atoum
     /**
      *
      */
-    public function test_ignoreSubTemplates_calls_soap_server()
+    public function test_ignoreAllSubTemplates_calls_soap_server()
     {
         $mock = $this->scaffoldMock();
 
@@ -186,7 +186,7 @@ class Local extends atoum
         $local = new LdxLocal($mock);
 
         $this->when(function() use ($local) {
-                    $local->ignoreSubTemplates(true);
+                    $local->ignoreAllSubTemplates(true);
                 })
                 ->mock($mock)
                 ->call('SetIgnoreSubTemplates')
@@ -196,7 +196,7 @@ class Local extends atoum
     /**
      *
      */
-    public function test_ignoreSubTemplates_throw_exceptions_when_soap_error_occurs()
+    public function test_ignoreAllSubTemplates_throw_exceptions_when_soap_error_occurs()
     {
         $mock = $this->scaffoldMock();
 
@@ -206,29 +206,11 @@ class Local extends atoum
         $local = new LdxLocal($mock);
 
         $this->exception(function() use ($local) {
-                    $local->ignoreSubTemplates();
+                    $local->ignoreAllSubTemplates();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\IgnoreException')
                 ->hasMessage('Error while telling the server to ignore subtemplates')
                 ->hasNestedException();
-    }
-
-    /**
-     *
-     */
-    public function test_ignoreSubTemplates_throw_exceptions_with_wrong_parameter()
-    {
-        $mock = $this->scaffoldMock();
-
-        $mock->getMockController()->SetIgnoreSubTemplates = true;
-
-        $local = new LdxLocal($mock);
-
-        $this->exception(function() use ($local) {
-                    $local->ignoreSubTemplates('random string');
-                })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
-                ->hasMessage('ignoreSubTemplates expects its parameter to be a boolean');
     }
 
     /**
@@ -243,7 +225,7 @@ class Local extends atoum
         $local = new LdxLocal($mock);
 
         $this->when(function() use ($local) {
-                    $local->ignoreListOfSubTemplates(['test', 'value', 'random value']);
+                    $local->ignoreListOfSubTemplates(['test' , 'value' , 'random value' ]);
                 })
                 ->mock($mock)
                 ->call('SetSubTemplateIgnoreList')
@@ -263,9 +245,9 @@ class Local extends atoum
         $local = new LdxLocal($mock);
 
         $this->exception(function() use ($local) {
-                    $local->ignoreListOfSubTemplates(['random value', 'test']);
+                    $local->ignoreListOfSubTemplates(['random value' , 'test' ]);
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\IgnoreException')
                 ->hasMessage('Error while telling the server to ignore a list of subtemplates')
                 ->hasNestedException();
     }
@@ -284,7 +266,7 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->ignoreListOfSubTemplates(1234567890);
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\InvalidException')
                 ->hasMessage('List of subtemplate filenames must be an array');
     }
 
@@ -300,7 +282,7 @@ class Local extends atoum
         $this->exception(function() use ($local) {
                     $local->getFieldNames();
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\NonActiveException')
                 ->hasMessage('You can only get the field names of the active template');
     }
 
@@ -315,14 +297,14 @@ class Local extends atoum
 
         $local = new LdxLocal($mock);
 
-        file_put_contents(__DIR__ . '/test-local-1.dat', 'random content');
-        $local->setName('test-local-1.dat', __DIR__);
+        file_put_contents(__DIR__ . '/test-local-1.dat' , 'random content');
+        $local->setName('test-local-1.dat' , __DIR__);
 
         $this->exception(function() use ($local) {
                     $local->setAsActive();
-                    $local->getFieldNames(['random value', 'test']);
+                    $local->getFieldNames(['random value' , 'test' ]);
                 })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\StatusException')
                 ->hasMessage('Error while getting the list of all fields in the active template')
                 ->hasNestedException();
 
@@ -340,8 +322,8 @@ class Local extends atoum
 
         $local = new LdxLocal($mock);
 
-        file_put_contents(__DIR__ . '/test-local-2.dat', 'random content');
-        $local->setName('test-local-2.dat', __DIR__);
+        file_put_contents(__DIR__ . '/test-local-2.dat' , 'random content');
+        $local->setName('test-local-2.dat' , __DIR__);
         $local->setAsActive();
 
         $this->array($local->getFieldNames())
@@ -358,18 +340,18 @@ class Local extends atoum
         $mock->getMockController()->GetFieldNames    = function() {
             $ret                              = new \stdClass();
             $ret->GetFieldNamesResult         = new \stdClass();
-            $ret->GetFieldNamesResult->string = [ 'value', 'value2', 'value3'];
+            $ret->GetFieldNamesResult->string = [ 'value' , 'value2' , 'value3' ];
             return $ret;
         };
 
         $local = new LdxLocal($mock);
 
-        file_put_contents(__DIR__ . '/test-local-3.dat', 'random content');
-        $local->setName('test-local-3.dat', __DIR__);
+        file_put_contents(__DIR__ . '/test-local-3.dat' , 'random content');
+        $local->setName('test-local-3.dat' , __DIR__);
         $local->setAsActive();
 
         $this->array($local->getFieldNames())
-                ->containsValues([ 'value', 'value2', 'value3']);
+                ->containsValues([ 'value' , 'value2' , 'value3' ]);
 
         unlink(__DIR__ . '/test-local-3.dat');
     }
@@ -387,12 +369,12 @@ class Local extends atoum
         };
 
         $local = new LdxLocal($mock);
-        file_put_contents(__DIR__ . '/test-local-4.dat', 'random content');
-        $local->setName('test-local-4.dat', __DIR__);
+        file_put_contents(__DIR__ . '/test-local-4.dat' , 'random content');
+        $local->setName('test-local-4.dat' , __DIR__);
         $local->setAsActive();
 
         $this->array($local->getFieldNames())
-                ->containsValues([ 'value']);
+                ->containsValues([ 'value' ]);
 
         unlink(__DIR__ . '/test-local-4.dat');
     }
@@ -411,7 +393,7 @@ class Local extends atoum
         $mock  = $this->scaffoldMock();
         $local = new LdxLocal($mock);
 
-        $local->setName('test-local-5.dat', __DIR__);
+        $local->setName('test-local-5.dat' , __DIR__);
 
         $this->exception(function() use ($local) {
                     $local->getContents();
@@ -429,9 +411,9 @@ class Local extends atoum
 
         $mlrs = 'Multi line' . PHP_EOL . 'random string' . PHP_EOL;
 
-        file_put_contents(__DIR__ . '/test-local-6.dat', $mlrs);
+        file_put_contents(__DIR__ . '/test-local-6.dat' , $mlrs);
 
-        $local->setName('test-local-6.dat', __DIR__);
+        $local->setName('test-local-6.dat' , __DIR__);
 
         $this->string($local->getContents())
                 ->isEqualTo($mlrs);
@@ -447,7 +429,7 @@ class Local extends atoum
         $mock  = $this->scaffoldMock();
         $local = new LdxLocal($mock);
 
-        $local->setName('test-local-7.dat', __DIR__);
+        $local->setName('test-local-7.dat' , __DIR__);
 
         $this->exception(function() use ($local) {
                     $local->getFormat();
@@ -464,9 +446,9 @@ class Local extends atoum
 
         $local = new LdxLocal($mock);
 
-        file_put_contents(__DIR__ . '/test-local-8.dat', 'random content');
+        file_put_contents(__DIR__ . '/test-local-8.dat' , 'random content');
 
-        $local->setName('test-local-8.dat', __DIR__);
+        $local->setName('test-local-8.dat' , __DIR__);
 
         $this->string($local->getFormat())
                 ->isEqualTo('dat');
@@ -485,13 +467,13 @@ class Local extends atoum
             throw new SoapException('random exception');
         };
 
-        file_put_contents(__DIR__ . '/test-local-9.dat', 'random content');
+        file_put_contents(__DIR__ . '/test-local-9.dat' , 'random content');
         $local = new LdxLocal($mock);
-        $local->setName('test-local-9.dat', __DIR__);
+        $local->setName('test-local-9.dat' , __DIR__);
 
         $this->exception(function() use ($local) {
                     $local->setAsActive();
-                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\ActiveException')
                 ->hasMessage('Error while setting the local template as the active template');
 
         unlink(__DIR__ . '/test-local-9.dat');
@@ -508,7 +490,7 @@ class Local extends atoum
 
         $this->exception(function() use ($local) {
                     $local->setAsActive();
-                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\FileExistException')
                 ->hasMessage('Template file does not exist or is not readable');
     }
 
@@ -526,18 +508,18 @@ class Local extends atoum
 
         $content = 'Multi line' . PHP_EOL . 'random string' . PHP_EOL;
 
-        file_put_contents(__DIR__ . '/test-local-10.dat', $content);
+        file_put_contents(__DIR__ . '/test-local-10.dat' , $content);
         $encoded = base64_encode($content);
 
         $local = new LdxLocal($mock);
-        $local->setName('test-local-10.dat', __DIR__);
+        $local->setName('test-local-10.dat' , __DIR__);
 
         $this->when(function()use($local) {
                     $local->setAsActive();
                 })
-                ->string($result['template'])
+                ->string($result[ 'template' ])
                 ->isEqualTo($encoded)
-                ->string($result['format'])
+                ->string($result[ 'format' ])
                 ->isEqualTo('dat');
 
 
@@ -555,13 +537,13 @@ class Local extends atoum
             throw new SoapException('random exception');
         };
 
-        file_put_contents(__DIR__ . '/test-local-11.dat', 'random content');
+        file_put_contents(__DIR__ . '/test-local-11.dat' , 'random content');
         $local = new LdxLocal($mock);
-        $local->setName('test-local-11.dat', __DIR__);
+        $local->setName('test-local-11.dat' , __DIR__);
 
         $this->exception(function() use ($local) {
                     $local->upload();
-                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\Templates\UploadException')
                 ->hasMessage('Error while uploading the template');
 
         unlink(__DIR__ . '/test-local-11.dat');
@@ -578,7 +560,7 @@ class Local extends atoum
 
         $this->exception(function() use ($local) {
                     $local->upload();
-                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\TemplateException')
+                })->isInstanceOf('Awakenweb\Livedocx\Exceptions\FileExistException')
                 ->hasMessage('Template file does not exist or is not readable');
     }
 
@@ -596,18 +578,18 @@ class Local extends atoum
 
         $content = 'Multi line' . PHP_EOL . 'random string' . PHP_EOL;
 
-        file_put_contents(__DIR__ . '/test-local-12.dat', $content);
+        file_put_contents(__DIR__ . '/test-local-12.dat' , $content);
         $encoded = base64_encode($content);
 
         $local = new LdxLocal($mock);
-        $local->setName('test-local-12.dat', __DIR__);
+        $local->setName('test-local-12.dat' , __DIR__);
 
         $this->when(function()use($local) {
                     $local->upload();
                 })
-                ->string($result['template'])
+                ->string($result[ 'template' ])
                 ->isEqualTo($encoded)
-                ->string($result['filename'])
+                ->string($result[ 'filename' ])
                 ->isEqualTo('test-local-12.dat');
 
 
@@ -627,8 +609,8 @@ class Local extends atoum
     public function filenamesProvider()
     {
         return [
-            ['testfile.doc', null, 'testfile.doc', 'testfile.doc'],
-            ['thisIsATest.doc', '/test/', 'thisIsATest.doc', '/test/thisIsATest.doc']
+            ['testfile.doc' , null , 'testfile.doc' , 'testfile.doc' ] ,
+            ['thisIsATest.doc' , '/test/' , 'thisIsATest.doc' , '/test/thisIsATest.doc' ]
         ];
     }
 

@@ -28,7 +28,8 @@ namespace Awakenweb\Livedocx\Templates;
 
 use Awakenweb\Livedocx\Exceptions\FileExistException;
 use Awakenweb\Livedocx\Exceptions\SoapException;
-use Awakenweb\Livedocx\Exceptions\TemplateException;
+use Awakenweb\Livedocx\Exceptions\Templates\ActiveException;
+use Awakenweb\Livedocx\Exceptions\Templates\UploadException;
 use Awakenweb\Livedocx\Template;
 use RuntimeException;
 use SplFileObject;
@@ -61,7 +62,8 @@ class Local extends Template
      *
      * @return Local
      *
-     * @throws TemplateException
+     * @throws FileExistException
+     * @throws ActiveException
      */
     public function setAsActive()
     {
@@ -69,7 +71,7 @@ class Local extends Template
             $templatecontent = $this->getBase64Contents();
             $format          = $this->getFormat();
         } catch ( FileExistException $ex ) {
-            throw new TemplateException('Template file does not exist or is not readable' , $ex);
+            throw new FileExistException('Template file does not exist or is not readable' , $ex);
         }
 
         try {
@@ -81,7 +83,7 @@ class Local extends Template
 
             return $this;
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while setting the local template as the active template' , $ex);
+            throw new ActiveException('Error while setting the local template as the active template' , $ex);
         }
     }
 
@@ -91,7 +93,8 @@ class Local extends Template
      *
      * @return Remote
      *
-     * @throws TemplateException
+     * @throws FileExistException
+     * @throws UploadException
      */
     public function upload()
     {
@@ -99,7 +102,7 @@ class Local extends Template
             $templatecontent = $this->getBase64Contents();
             $filename        = basename($this->getName());
         } catch ( FileExistException $ex ) {
-            throw new TemplateException('Template file does not exist or is not readable' , $ex);
+            throw new FileExistException('Template file does not exist or is not readable' , $ex);
         }
 
         try {
@@ -113,7 +116,7 @@ class Local extends Template
 
             return $remoteTemplate;
         } catch ( SoapException $ex ) {
-            throw new TemplateException('Error while uploading the template' , $ex);
+            throw new UploadException('Error while uploading the template' , $ex);
         }
     }
 
@@ -127,7 +130,7 @@ class Local extends Template
      */
     public function getName($full = false)
     {
-        if (! $full) {
+        if ( ! $full ) {
             return $this->templateName;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->templateName : $this->templateName;
@@ -140,7 +143,7 @@ class Local extends Template
      *
      * @return string
      *
-     * @throws TemplateException
+     * @throws FileExistException
      */
     public function getContents()
     {
@@ -158,7 +161,7 @@ class Local extends Template
      *
      * @return string
      *
-     * @throws TemplateException
+     * @throws FileExistException
      */
     public function getFormat()
     {
@@ -176,7 +179,7 @@ class Local extends Template
      *
      * @return string
      *
-     * @throws TemplateException @see Local::getContents
+     * @throws FileExistException @see Local::getContents
      */
     protected function getBase64Contents()
     {

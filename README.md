@@ -37,7 +37,7 @@ Installation
 To install this package using [Composer](https://getcomposer.org/), simply add this to you `composer.json` file
 ```json
  "require" : {
-    "awakenweb/livedocx" : "1.0"
+    "awakenweb/livedocx" : "dev-master"
  }
 ```
 

@@ -29,31 +29,16 @@ class Block extends atoum
     /**
      * @dataProvider fakeKeysForBlock
      */
-    public function test_block_binding_throws_exceptions_when_invalid_keys($key)
+    public function test_block_binding_throws_exceptions_when_invalid_keys($invalidValue)
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
 
-        $this->exception(function () use ($block , $key) {
-                    $block->bind($key , 'random value');
+        $this->exception(function () use ($block , $invalidValue) {
+                    $block->bind($invalidValue);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Block\InvalidException')
-                ->hasMessage('Block binding key must be a non empty string');
-    }
-
-    /**
-     * @dataProvider fakeValuesForBlock
-     */
-    public function test_block_binding_throws_exceptions_when_invalid_values($value)
-    {
-        $mock  = $this->scaffoldMock();
-        $block = new LDXBlock($mock);
-
-        $this->exception(function () use ($block , $value) {
-                    $block->bind('randomKey' , $value);
-                })
-                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Block\InvalidException')
-                ->hasMessage('Block binding value must be a non empty string or number');
+                ->hasMessage('Values assigned to a block must be an array');
     }
 
     /**
@@ -64,15 +49,35 @@ class Block extends atoum
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
 
-        $this->when(function() use ($block) {
-                    $block->bind([
-                        'testKey'  => 'testValue' ,
-                        'testKey2' => 'testValue2'
-                    ]);
-                })
-                ->array($block->retrieveValues())
-                ->containsValues([ 'testValue' , 'testValue2' ])
-                ->hasKeys([ 'testKey' , 'testKey2' ]);
+        $block->bind([
+            [ 'testKey' => 'testValue' , 'anotherKey' => 'anotherValue' ] ,
+            [ 'testKey' => 'testValue2' , 'anotherKey' => 'anotherValue2' ]
+        ]);
+
+        $result = $block->retrieveValues();
+
+        $this->array($result);
+
+        $this->array($result[ 0 ])
+                ->hasKeys(['testKey' , 'anotherKey' ])
+                ->containsValues(['testValue' , 'anotherValue' ]);
+
+        $this->array($result[ 1 ])
+                ->hasKeys([ 'testKey' , 'anotherKey' ])
+                ->containsValues(['testValue2' , 'anotherValue2' ]);
+    }
+
+    /**
+     *
+     */
+    public function test_bind_is_chainable()
+    {
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
+
+        $this->object($block->bind([ [ 'testKey' => 'testValue' ] ]))
+                ->isInstanceOf('Awakenweb\Livedocx\Block')
+                ->isIdenticalTo($block);
     }
 
     /**
@@ -96,12 +101,36 @@ class Block extends atoum
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
-        $block->bind('test' , 'my test value')
-                ->bind('thisIsATest' , 'another test value');
+        $block->bind([ 'test' => 'my test value' , 'thisIsATest' => 'another test value' ]);
 
-        $this->array($block->retrieveValues())
+        $returnVal = $block->retrieveValues();
+
+        $this->array($returnVal)
+                ->array($returnVal[ 0 ])
                 ->hasKeys(['test' , 'thisIsATest' ])
                 ->containsValues(['my test value' , 'another test value' ]);
+    }
+
+    /**
+     *
+     */
+    public function test_block_retrieveValues_return_array_when_bind_is_called_multiple_times()
+    {
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
+        $block->bind([ 'test' => 'my test value' , 'thisIsATest' => 'another test value' ]);
+        $block->bind([ 'test' => 'my test value 2' , 'thisIsATest' => 'another test value 2' ]);
+
+        $returnVal = $block->retrieveValues();
+
+        $this->array($returnVal);
+        $this->array($returnVal[ 0 ])
+                ->hasKeys(['test' , 'thisIsATest' ])
+                ->containsValues(['my test value' , 'another test value' ]);
+
+        $this->array($returnVal[ 1 ])
+                ->hasKeys(['test' , 'thisIsATest' ])
+                ->containsValues(['my test value 2' , 'another test value 2' ]);
     }
 
     /**
@@ -123,6 +152,9 @@ class Block extends atoum
                 ->hasNestedException();
     }
 
+    /**
+     *
+     */
     public function test_getAllBlockNames_return_empty_array_when_no_blocks()
     {
         $mock  = $this->scaffoldMock();
@@ -135,6 +167,9 @@ class Block extends atoum
                 ->isEmpty();
     }
 
+    /**
+     *
+     */
     public function test_getAllBlockNames_return_array_when_an_array()
     {
         $mock  = $this->scaffoldMock();
@@ -150,6 +185,9 @@ class Block extends atoum
                 ->containsValues(['value1' , 'value2' ]);
     }
 
+    /**
+     *
+     */
     public function test_getAllBlockNames_return_array_when_a_string()
     {
         $mock  = $this->scaffoldMock();
@@ -168,10 +206,27 @@ class Block extends atoum
     /**
      *
      */
+    public function test_getName_throw_exception_when_no_name_has_been_set()
+    {
+        $mock  = $this->scaffoldMock();
+        $block = new LDXBlock($mock);
+
+        $this->exception(function () use ($block) {
+                    $block->getName();
+                })
+                ->isInstanceOf('Awakenweb\Livedocx\Exceptions\Block\NameException')
+                ->hasMessage('The name of the block has not been set');
+    }
+
+    /**
+     *
+     */
     public function test_getFieldNames_throw_exception_when_soap_error_occurs()
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
+
+        $block->setName('myBlock');
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             throw new SoapException('random exception');
@@ -192,6 +247,8 @@ class Block extends atoum
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
 
+        $block->setName('myBlock');
+
         $mock->getMockController()->GetBlockFieldNames = function() {
             return new stdClass();
         };
@@ -206,6 +263,8 @@ class Block extends atoum
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
+
+        $block->setName('myBlock');
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             $ret                                   = new stdClass();
@@ -224,6 +283,8 @@ class Block extends atoum
     {
         $mock  = $this->scaffoldMock();
         $block = new LDXBlock($mock);
+
+        $block->setName('myBlock');
 
         $mock->getMockController()->GetBlockFieldNames = function() {
             $ret                                   = new stdClass();
@@ -249,16 +310,6 @@ class Block extends atoum
             [new stdClass() ] ,
             [1234567890 ] ,
             [123.123456 ]
-        ];
-    }
-
-    public function fakeValuesForBlock()
-    {
-        return [
-            ['' ] ,
-            [ null ] ,
-            [new stdClass() ] ,
-            [array() ]
         ];
     }
 

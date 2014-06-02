@@ -85,6 +85,10 @@ class Client
         return $this;
     }
 
+    /**
+     *
+     * @return boolean
+     */
     public function isConnected()
     {
         return ( bool ) $this->isConnected;
@@ -136,8 +140,9 @@ class Client
     protected function isArrayMulti($array)
     {
         foreach ( $array as $value ) {
-            if ( is_array($value) )
+            if ( is_array($value) ) {
                 return true;
+            }
         }
         return false;
     }

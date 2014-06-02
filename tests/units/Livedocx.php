@@ -120,6 +120,7 @@ class Livedocx extends atoum
         $client    = $mocks[ 'client' ];
         $ldx       = new LdxLivedocx($client , $container);
         $blc       = new \mock\Awakenweb\Livedocx\Block($client);
+        $blc->setName('some Block');
 
         $container->getMockController()->getBlocks = [$blc ];
         $container->getMockController()->getFields = [ 'test' => 'value' ];

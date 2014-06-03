@@ -1,0 +1,788 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Test</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700,400|Anonymous+Pro:400,700,400italic,700italic' rel='stylesheet'>
+        <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert&lang=php"></script>
+    </head>
+    <body>
+
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <a class="logo-link" href="index.html">Livedocx</a>
+                </div>
+                <ul class="links">
+                    <li class="link active"><a href="classes.html">Classes</a> </li>
+                </ul>
+            </div>
+        </nav>
+
+        <header class="header">
+            <div class="jumbo">
+                <h1>Livedocx</h1>
+                <p class="tagline">Description of all classes of the package.</p>
+            </div>
+        </header>
+
+        <section>
+            <div class="container">
+                <div class="row">
+                    <nav class="col-3 sidebar">
+                        <h2>Classes</h2>
+                        <ul class="links">
+                            <li class="link"><a href="#livedocx">Livedocx</a></li>
+                            <li class="link"><a href="#templates">Templates</a></li>
+                            <li class="link"><a href="#local-templates">Local Templates</a></li>
+                            <li class="link"><a href="#remote-templates">Remote Templates</a></li>
+                            <li class="link"><a href="#document">Document</a></li>
+                            <li class="link"><a href="#image">Image</a></li>
+                            <li class="link"><a href="#blocks">Blocks</a></li>
+                            <li class="link"><a href="#soap">Soap Client</a></li>
+                        </ul>
+                    </nav>
+                    <div class="col-9">
+
+                        <article id="livedocx">
+                            <h1>Livedocx</h1>
+                            <h2>Usage</h2>
+                            <p>The Livedocx class is the entry point of the library.</p>
+                            <p>It serves both as a hub to assign the mergefields with values, and as a factory to create &quot;ready to use&quot; other classes.</p>
+                            <p>If you use the frameworks integrations provided, these are working out of the box, juste fill the config files provided to start using the library.</p>
+                            <p>If you&#39;re doing it the good-ol&#39; way here is how you instanciate the class and prepare it for use:</p>
+                            <pre class="prettyprint linenums"><code class="language-php">
+use Awakenweb\Livedocx\Soap;
+use Awakenweb\Livedocx\Livedocx;
+use Awakenweb\Livedocx\Container;
+<br>
+$client = new Soap\Client(\SoapClient(&#39;https://path_to_the_wsdl&#39;));
+$client-&gt;connect(USERNAME, PASSWORD);
+<br>
+$livedocx = new Livedocx($client, new Container());</code></pre>
+                            <p>You don&#39;t have to worry about the Container class, as you will never have to deal directly with it. It just stores the field values, the blocks and the images.</p>
+                            <h2>Methods</h2>
+                            <p>Unless explicitely stated, all parameters and return values classes are prefixed with the namespace <code>\Awakenweb\Livedocx\</code>.</p>
+                            <p>Exceptions thrown by the classes are all prefixed by <code>\Awakenweb\Livedocx\Exceptions</code></p>
+
+                            <div class="method">
+                                <h3 class="method-name">__construct($client, $container)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <ul>
+                                        <li>$client: <em>Soap\Client</em></li>
+                                        <li>$container: <em>Container</em></li>
+                                    </ul>
+                                    <p><strong>Create an instance of the Livedocx class.</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">assign($key, $value)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>ContainerException</code></em></p>
+                                    <ul>
+                                        <li>$key: <em>string</em>|<em>Block</em>|<em>array</em></li>
+                                        <li>$value: <em>string</em>|<em>Image</em></li>
+                                    </ul>
+                                    <p><strong>Assign a value to a mergefield.</strong></p>
+                                    <p>This method accepts different type of parameters:</p>
+                                    <ul>
+                                        <li><p><code>$livedocx-&gt;assign(&#39;fieldname&#39;, &#39;fieldvalue&#39;);</code></p>
+                                        </li>
+                                        <li><p><code>$livedocx-&gt;assign(array(&#39;fieldname&#39;=&gt;&#39;&#39;value&#39;, &#39;otherfield&#39;=&gt;&#39;other value&#39;));</code></p>
+                                        </li>
+                                        <li><p><code>$livedocx-&gt;assign(BLOCK);</code></p>
+                                        </li>
+                                        <li><p><code>$livedocx-&gt;assign(&#39;imagename&#39;, IMAGE);</code></p>
+                                        </li>
+                                    </ul>
+                                    <p>If a different type of value is provided, a <code>ContainerException</code> will be thrown  </p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">createBlock()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Create a new <code>Block</code> instance</strong></p>
+                                </div>
+                            </div>
+
+
+                            <div class="method">
+                                <h3 class="method-name">createDocument()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Create a new <code>Document</code> instance</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">createImage()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Create a new <code>Image</code> instance</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">createLocalTemplate()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Create a new <code>Templates\LocalTemplate</code> instance</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">createRemoteTemplate()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Create a new <code>Templates\RemoteTemplate</code> instance</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">prepare()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>DeclarationException</code></em></p>
+                                    <p><strong>Merge all the fields with their real value and return an instance of <code>Document</code>.</strong></p>
+                                    <p>If an error occurs while actually sending the data to the webservice, a <code>DeclarationException</code> will be thrown.</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article id="templates">
+                            <h1>Templates</h1>
+
+                            <h2>Usage</h2>
+                            <p>Both local and remote templates are used to manipulate template files. You can upload and download templates to and from Livedocx servers, as well as getting many metadata about them.</p>
+                            <p>Only common methods between the two types of templates will be explained here. For more specific-templates related methods, read the following articles.</p>
+                            <p>A <code>Template</code> does class exists, but is abstract. You have to instanciate either <code>Templates\LocalTemplate</code> or <code>Templates\RemoteTemplate</code> to manipulate templates.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">$template = $livedocx-&gt;createLocalTemplate();
+<br>
+$template-&gt;setName(&#39;MyTemplate.docx&#39;, &#39;/home/me/myfolder/&#39;)
+         -&gt;setAsActive();</code></pre>
+
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">getAcceptedTemplateFormats()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Templates\StatusException</code></em></p>
+                                    <p><strong>Get a list of all accepted file formats for file uploads.</strong></p>
+                                    <p>If an error occurs while obtaning the list, a  <code>Templates\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAvailableFonts()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Templates\StatusException</code></em></p>
+                                    <p><strong>Get a list of all accepted fonts that you can use in your templates.</strong></p>
+                                    <p>If an error occurs while obtaning the list, a  <code>Templates\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">ignoreAllSubTemplates($state)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Templates\IgnoreException</code></em></p>
+                                    <ul>
+                                        <li>$state: <em>boolean</em></li>
+                                    </ul>
+                                    <p><strong>Enable or disable the possibility to ignore subtemplates included into your main template.</strong></p>
+                                    <p>If an error occurs while sending the data, a  <code>Templates\IgnoreException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">ignoreListOfSubTemplates($list)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Templates\InvalidException</code>, <code>Templates\IgnoreException</code></em></p>
+                                    <ul>
+                                        <li>$list: <em>array</em></li>
+                                    </ul>
+                                    <p><strong>Define a list of subtemplates to ignore while generating the final document.</strong></p>
+                                    <p>If an error occurs while sending the list a  <code>Templates\IgnoreException</code> will be thrown.</p>
+                                    <p>If you don&#39;t provide an array as parameter, a <code>Templates\InvalidException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">listAll()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Templates\StatusException</code></em></p>
+                                    <p><strong>Get a list of all already uploaded templates on Livedocx service</strong></p>
+                                    <p>If an error occurs while obtaning the list, a  <code>Templates\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article id="local-templates">
+
+                            <h1>Local Templates</h1>
+
+                            <h2>Usage</h2>
+                            <p>Local templates are the files present on your own server. This class is especially useful to upload these files to Livedocx.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">$template = $livedocx-&gt;createLocalTemplate();
+<br>
+$template-&gt;setName(&#39;MyTemplate.docx&#39;, &#39;/home/me/myfolder/&#39;);
+         -&gt;upload();</code></pre>
+
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">getContents()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>FileExistsException</code></em></p>
+                                    <p><strong>Return the contents of the file as a single string</strong></p>
+                                    <p>If the file provided does not exist or is not readable, a <code>FileExistsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getFormat($fullname)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>FileExistsException</code></em></p>
+                                    <ul>
+                                        <li>$fullname <em>string</em></li>
+                                    </ul>
+                                    <p><strong>Return the format of the file identified by its full name as a string.</strong></p>
+                                    <p>If the file provided does not exist or is not readable, a <code>FileExistsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getName($full)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <ul>
+                                        <li>$full: <em>boolean</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong>Return the name of the file as a string.</strong></p>
+                                    <p> If the <em>$full</em> argument is provided, the complete path to the file is also returned.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setAsActive()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>FileExistsException</code>, <code>Templates\ActiveException</code></em></p>
+                                    <p><strong>Set the current file as the active file.</strong></p>
+                                    <p>When used on a Local template, the file is actually uploaded temporarily to the Livedocx servers, and deleted from their servers after generating the document.</p>
+                                    <p>If an error occurs while uploading the file, a <code>Templates\ActiveException</code> will be thrown.</p>
+                                    <p>If the file provided does not exist or is not readable, a <code>FileExistsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setName($name, $path)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <ul>
+                                        <li>$name <em>string</em></li>
+                                        <li>$path <em>string</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong>Define the name of the template file with its path.</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">upload()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>FileExistsException</code>, <code>Templates\UploadException</code></em></p>
+                                    <p><strong>Upload the template file to Livedocx server.</strong></p>
+                                    <p>If an error occurs while uploading the file, a <code>Templates\UploadException</code> will be thrown.</p>
+                                    <p>If the file provided does not exist or is not readable, a <code>FileExistsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article id="remote-templates">
+                            <h1>Remote Templates</h1>
+
+                            <h2>Usage</h2>
+                            <p>Remote templates are used to manipulate template files stored on Livedocx servers.</p>
+                            <p>You can download them, delete them, check if the template you ask for exists (so you can upload it if it&#39;s not the case) or get a list of all fields that exist in the active template.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">$remote = $livedocx-&gt;createRemoteTemplate();
+<br>
+$remote-&gt;setName(&#39;MyTemplate.docx&#39;);
+<br>
+if($remote-&gt;exists()) // this line is not necessary as setAsActive calls it behind the scene.
+    $remote-&gt;setAsActive();
+<br>
+file_put_contents(__DIR__ . &#39;/&#39; . $remote-&gt;getName(), $remote-&gt;download());</code></pre>
+
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">delete()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Templates\DeleteException</code> </em></p>
+                                    <p><strong>Delete a template from Livedocx servers.</strong> If the file does not exist, nothing happens.</p>
+                                    <p>If an error occurs while deleting the file, a <code>Templates\DeleteException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">download()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Templates\DonwloadException</code>, <code>FileExistException</code> </em></p>
+                                    <p><strong>Get the contents of a template uploaded to Livedocx servers as a single string.</strong></p>
+                                    <p>If the template does not exist on Livedocx, a <code>FileExistsException</code> will be thrown.</p>
+                                    <p>If an error occurs while downloading the file, a <code>Templates\DonwloadException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">exist()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Templates\StatusException</code> </em></p>
+                                    <p><strong>Verify if the template file has been uploaded to Livedocx servers.</strong> Returns a boolean.</p>
+                                    <p>If an error occurs during the verification, a <code>Templates\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getFieldNames()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Templates\StatusException</code>, <code>Templates\NonActiveException</code> </em></p>
+                                    <p><strong>Get the list of all the available fields present on the template file.</strong> Returns an array.</p>
+                                    <p>If the template is not the active template, a <code>Templates\NonActiveException</code> will be thrown.
+                                        If an error occurs while getting the fields list, a <code>Templates\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getName()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong>Get the name of the template file as a string.</strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setAsActive()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Templates\ActiveException</code>, <code>FileExistException</code> </em></p>
+                                    <p><strong>When used on a Remote template, the method first verify if the file has been uploaded on Livedocx servers, then set the file as active.</strong></p>
+                                    <p>If the template does not exist on Livedocx, a <code>FileExistsException</code> will be thrown.</p>
+                                    <p>If an error occurs while setting the file as active, a <code>Templates\ActiveException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setName($name)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <ul>
+                                        <li>$name <em>string</em></li>
+                                    </ul>
+                                    <p><strong>Define the name of the template file.</strong></p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article id="document">
+                            <h1>Document</h1>
+
+                            <h2>Usage</h2>
+
+                            <p>Documents are the files you generate when mergin the fields with their value.</p>
+                            <p>There are 2 ways of creating an instance of this class:</p>
+                            <ul>
+                                <li>You can use the <code>createDocument()</code> method of the Livedocx class that will return an empty document</li>
+                                <li>Or call the <code>prepare()</code> of the Livedocx class that will also send the values you want to merge to the templates.</li>
+                            </ul>
+                            <p>You can retrieve them either as document format:
+                                <em> </em>pdf<em>
+                                </em> <em>doc</em>
+                                <em> </em>docx<em>
+                                </em> <em>rtf</em>
+                                * ...</p>
+                            <p>or as images:
+                                <em> bitmaps files
+                                </em> <em>bmp</em>
+                                <em> </em>jpg<em>
+                                </em> <em>png</em>
+                                <em> </em>tiff<em>
+                                </em> ...
+                                * Microsoft Office Metafiles</p>
+                            <p>Images allow you to get only specific page range of the document (<em>i.e.</em> from page 2 to page 7).</p>
+                            <p>You can define a password for the document, or restrict some actions with a set of permissions before creating it. These passwords and permissions are only available when retrieving the document as a <em>pdf</em> file.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">
+$document  = $livedocx-&gt;prepare();
+<br>
+$document-&gt;setPassword(&#39;S3CR3T&#39;);
+         -&gt;create();
+<br>
+$images = $document-&gt;getAsBitmaps(1, &#39;jpg&#39;, 2, 7); // zoom, format, from page, to page
+foreach($images as $pagenumber =&gt; $data)
+{
+    $filename = __DIR__ . &#39;/&#39; . &#39;image_&#39;. $pagenumber . &#39;.jpg&#39;;
+    file_put_contents( $filename , $data);
+}
+<br>
+file_put_contents(__DIR__ . &#39;/&#39; . &#39;myDocument.pdf&#39;, $document-&gt;retrieve(&#39;pdf&#39;));</code></pre>
+
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">create()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\CreateException</code> </em></p>
+                                    <p><strong>Generate the document by merging the fields with their values</strong></p>
+                                    <p>If an error occurs while generating the document, a <code>Document\CreateException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAccessOptions()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\PermissionsException</code> </em></p>
+                                    <p><strong> Get a list of defined permissions for the generated document. </strong></p>
+                                    <p>If an error occurs while getting the list, a <code>Document\PermissionsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAsBitmaps($zoomFactor, $format, $from, $to)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\BitmapsException</code>, <code>Document\InvalidException</code> </em></p>
+                                    <ul>
+                                        <li>$zoomFactor: <em>int</em></li>
+                                        <li>$format: <em>string</em></li>
+                                        <li>$from: <em>int</em> <strong>optional</strong> </li>
+                                        <li>$to: <em>int</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong> Retrieve the generated document as a set of Bitmaps. </strong> Return a array where the array key is the page number and the value is a binary string you can use directly or save on your server.</p>
+                                    <p>You can provide a start page and an end page if you want only some specific pages as bitmaps.</p>
+                                    <pre class="prettyprint linenums"><code class="language-php">$images = $document-&gt;getAsBitmaps(1, &#39;jpg&#39;);
+foreach($images as $pagenumber =&gt; $data)
+{
+    $filename = __DIR__ . &#39;/&#39; . &#39;image_&#39;. $pagenumber . &#39;.jpg&#39;;
+    file_put_contents( $filename , $data);
+}</code></pre>
+                                    <p>If you don&#39;t provide correct parameters, a <code>Document\InvalidException</code> will be thrown.</p>
+                                    <p>If an error occurs while getting the bitmaps, a <code>Document\BitmapsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAvailableFormats()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\StatusException</code> </em></p>
+                                    <p><strong> Return a list of all available document formats you can retrieve your document as.</strong> Return an array.</p>
+                                    <p>If an error occurs while getting the list, a <code>Document\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getFormat()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong> Return the default format you set using setFormat() </strong> Return a string or null.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getMetaFiles($from, $to)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\InvalidException</code>, <code>Document\MetafilesException</code> </em></p>
+                                    <ul>
+                                        <li>$from: <em>int</em> <strong>optional</strong> </li>
+                                        <li>$to: <em>int</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong> Retrieve the generated document as a set of Microsoft Office Metafiles </strong> Return a array where the array key is the page number and the value is a binary string you can use directly or save on your server.</p>
+                                    <p>You can provide a start page and an end page if you want only some specific pages as metafiles.</p>
+                                    <pre class="prettyprint linenums"><code class="language-php">$images = $document-&gt;getMetaFiles();
+foreach($images as $pagenumber =&gt; $data)
+{
+    $filename = __DIR__ . &#39;/&#39; . &#39;metafile_&#39;. $pagenumber . &#39;.wmf&#39;;
+    file_put_contents( $filename , $data);
+}</code></pre>
+                                    <p>If you don&#39;t provide valid parameters, a <code>Document\InvalidException</code> will be thrown.</p>
+                                    <p>If an error occurs while getting the metafiles, a <code>Document\MetafilesException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">retrive($format)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\InvalidException</code> </em></p>
+                                    <ul>
+                                        <li>$format: <em>string</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong> Retrieve the document as a binary string in the specified format. </strong></p>
+                                    <p>If you don&#39;t provide a format, the default format set with <code>setFormat()</code> will be used.</p>
+                                    <p>If no format at all is provided, a <code>Document\InvalidException</code> will be thrown.</p>
+                                    <p>If an error occurs while retrieving the document, a <code>Document\RetrieveException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setFormat($format)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <ul>
+                                        <li>$format: <em>string</em></li>
+                                    </ul>
+                                    <p><strong> Define a default format to use when retrieving the document </strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setPassword($password)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\PasswordException</code> </em></p>
+                                    <ul>
+                                        <li>$password: <em>string</em></li>
+                                    </ul>
+                                    <p><strong> Set a password required to open the generated document. </strong></p>
+                                    <p>If an error occurs while setting the password, a <code>Document\PasswordException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setPermissions($permissions, $password)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Document\PermissionsException</code>, <code>Document\InvalidException</code> </em></p>
+                                    <ul>
+                                        <li>$permissions: <em>array</em></li>
+                                        <li>$password: <em>string</em></li>
+                                    </ul>
+                                    <p><strong> Set a list of restricted permissions and a master password to unlock them.</strong></p>
+                                    <p>If you don&#39;t provide valid parameters, a <code>Document\InvalidException</code> will be thrown.</p>
+                                    <p>If an error occurs while setting the password and permissions, a <code>Document\PermissionsException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                        </article>
+
+                        <article id="image">
+
+                            <h1>Image</h1>
+
+                            <h2>Usage</h2>
+                            <p>Allow you to manage images to be included in your documents.</p>
+                            <p>You can upload files to Livedocx, download them, delete them, get a list of all images already uploaded or check the image formats supported by Livedocx.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">$image = $livedocx-&gt;createImage();
+$image-&gt;setFilename(&#39;myImage.jpg&#39;, __DIR__ );
+<br>
+$image-&gt;upload();
+<br>
+$list = $image-&gt;listAll();
+foreach($list as $image)
+{
+    var_dump($image[&#39;filename&#39;]);
+}</code></pre>
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">delete()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions <code>Image\DeleteException</code> </em></p>
+                                    <p><strong> Delete the image file from Livedocx servers </strong></p>
+                                    <p>If an error occurs while deleting the file, a <code>Image\DeleteException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">download()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Image\DownloadException</code> </em></p>
+                                    <p><strong> Download the image from Livedocx server. </strong> Return a string</p>
+                                    <p>If an error occurs while downloading the file, a <code>Image\DownloadException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">exists()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Image\StatusException</code> </em></p>
+                                    <p><strong> Verify the existence of a file on Livedocx server. </strong> Return a boolean</p>
+                                    <p>If an error occurs while verifying the file, a <code>Image\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAcceptedFormats()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Image\StatusException</code> </em></p>
+                                    <p><strong> Get the list of all accepted image formats for upload </strong> Return an array</p>
+                                    <p>If an error occurs while obtaining the list, a <code>Image\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAvailableReturnFormats()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Image\StatusException</code> </em></p>
+                                    <p><strong> Get the list of all available image formats for document generation </strong> Return an array</p>
+                                    <p>If an error occurs while obtaining the list, a <code>Image\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getName($full)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none </em></p>
+                                    <ul>
+                                        <li>$full: <em>boolean</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong> Get the name of the image file </strong> Return a string</p>
+                                    <p>If the $full parameter is set, the path is also returned.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">listAll()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Image\StatusException</code> </em></p>
+                                    <p><strong> Get a list of all images already uploaded to Livedocx servers </strong> Return an array</p>
+                                    <p>If an error occurs while obtaining the list, a <code>Image\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setFilename($filename, $path)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none </em></p>
+                                    <ul>
+                                        <li>$filename: <em>string</em></li>
+                                        <li>$path: <em>string</em> <strong>optional</strong></li>
+                                    </ul>
+                                    <p><strong> Define the name of the image file. </strong></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">upload()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>FileExistException</code>, <code>Image\UploadException</code> </em></p>
+                                    <p><strong> Upload the image to Livedocx servers </strong></p>
+                                    <p>If the file provided does not exist, a <code>FileExistException</code> will be thrown.</p>
+                                    <p>If an error occurs while uploading the file, a <code>Image\UploadException</code> will be thrown.</p>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article id="blocks">
+                            <h1>Blocks</h1>
+                            <h2>Usage</h2>
+                            <p>Block are sets of values in a repeated structure.</p>
+                            <p>You define them by providing a set of fieldname =&gt; value bindings.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">$block = $livedocx-&gt;createBlock();
+<br>
+$block-&gt;setName(&#39;attendees&#39;);
+<br>
+$block-&gt;bind([&#39;firstname&#39; =&gt; &#39;John&#39;, &#39;lastname&#39; =&gt; &#39;Doe&#39;]);
+<br>
+$livedocx-&gt;assign($block);</code></pre>
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">bind($values)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Block\InvalidException</code> </em></p>
+                                    <ul>
+                                        <li>$values: <em>array</em></li>
+                                    </ul>
+                                    <p><strong>Add one or multiple lines of values to a block</strong> This method is chainable.</p>
+                                    <p>When binding a set of values to a block, you can either do it line by line, or multiple lines at the same time.</p>
+                                    <pre class="prettyprint linenums"><code class="language-php">$block-&gt;bind([&#39;firstname&#39; =&gt; &#39;Arnold&#39;, &#39;lastname&#39; =&gt; &#39;Schwarzenegger&#39;])
+-&gt;bind([&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;])
+-&gt;bind([&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]);
+<br>
+// has exactly the same result as
+<br>
+$block-&gt;bind(
+[
+  [&#39;firstname&#39; =&gt; &#39;Arnold&#39;, &#39;lastname&#39; =&gt; &#39;Schwarzenegger&#39;],
+  [&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;],
+  [&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]
+]
+);</code></pre>
+                                    <p>When you try to bind a value that is not contained in an array, a <code>Block\InvalidException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getAllBlockNames()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Block\StatusException</code> </em></p>
+                                    <p><strong>Return the name of all blocks contained in the active template file.</strong> Return an array.</p>
+                                    <p>If an error occurs while obtaining the list, or no template has been set as active, a <code>Block\StatusException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getFieldNames()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Block\StatusException</code>, <code>Block\NameException</code> </em></p>
+                                    <p><strong>Return the name of all fields contained in the block.</strong> Return an array.</p>
+                                    <p>If an error occurs while obtaining the list, or no template has been set as active, a <code>Block\StatusException</code> will be thrown.</p>
+                                    <p>If you call this method before giving the block a valid name, a <code>Block\NameException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getFieldNames()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Block\StatusException</code>, <code>Block\NameException</code> </em></p>
+                                    <p><strong>Return the name of all fields contained in the block.</strong> Return an array.</p>
+                                    <p>If an error occurs while obtaining the list, or no template has been set as active, a <code>Block\StatusException</code> will be thrown.</p>
+                                    <p>If you call this method before giving the block a valid name, a <code>Block\NameException</code> will be thrown. <em>(see <code>getName()</code> method)</em></p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">getName()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Block\NameException</code> </em></p>
+                                    <p><strong>Return the name of the block if it has been set.</strong></p>
+                                    <p>If no name has been set for the block, a <code>Block\NameException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">setName($name)</h3>
+                                <p><em>Exceptions: <code>Block\NameException</code> </em></p><div class="method-definition">
+
+                                    <ul>
+                                        <li>$name: <em>string</em></li>
+                                    </ul>
+                                    <p><strong>Define the name of the block.</strong></p>
+                                    <p>If the provided name is not a valid string, a <code>Block\NameException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                        </article>
+
+                        <article id="soap">
+                            <h1>Soap Client</h1>
+                            Soon
+                            <hr>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row center">
+                    Copyright Mathieu Savelli 2014
+                </div>
+            </div>
+        </footer>
+
+
+
+
+    </body>
+</html>

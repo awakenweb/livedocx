@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+
+    <head>
+        <title>Test</title>
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,700,400|Anonymous+Pro:400,700,400italic,700italic' rel='stylesheet' rel='stylesheet'>
+        <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js?skin=desert&lang=php"></script>
+    </head>
+    <body>
+
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <a class="logo-link" href="index.html">Livedocx</a>
+                </div>
+                <ul class="links">
+                    <li class="link"><a href="classes.html">Classes</a> </li>
+                </ul>
+            </div>
+        </nav>
+
+        <header class="header">
+            <div class="jumbo">
+                <h1>Livedocx</h1>
+                <p class="tagline">Generate PDF and other document types using the Livedocx webservice in PHP.</p>
+            </div>
+        </header>
+
+        <section>
+            <div class="container">
+                <div class="row">
+                    <nav class="col-3 sidebar">
+                        <h2>Menu</h2>
+                        <ul class="links">
+                            <li class="link"><a href="#why">Why this package?</a></li>
+                            <li class="link"><a href="#prerequisites">Prerequisites</a></li>
+                            <li class="link"><a href="#install">Installation</a></li>
+                            <li class="link"><a href="#coverage">API Coverage</a></li>
+                            <li class="link"><a href="#use">Use</a></li>
+                        </ul>
+                    </nav>
+                    <div class="col-9">
+
+                        <p><a href="https://travis-ci.org/awakenweb/livedocx"><img src="https://travis-ci.org/awakenweb/livedocx.svg?branch=master" alt="Build Status"></a></p>
+                        <h2>Disclaimer</h2>
+                        This package is only a client for the Livedocx API.
+                        <strong>I do not provide support for the Livedocx API directly</strong> as I am not affiliated, associated, authorized, endorsed by, or in any way officially connected with Text Control GmbH.
+
+                        <h2 id="why">Why this package?</h2>
+                        <p>You may know a <a href="https://github.com/zendframework/ZendService_LiveDocx">Livedocx package</a> already exists, so why did I bother reinvent the wheel?</p>
+                        <p>The existing Livedocx package is tightly bound to Zend Framework components and requires a lot of dependencies. Requiring nearly half a framework to only use a single library felt like pure overkill to me.</p>
+                        <p>I developped this Livedocx client with two point in mind:</p>
+                        <ul>
+                            <li>just the strict necessary dependencies</li>
+                            <li>an object oriented API</li>
+                        </ul>
+                        <p>Hope you will find it useful.</p>
+                        <p>This package is unit tested with <a href="https://github.com/atoum/atoum">Atoum</a></p>
+
+
+                        <h2 id="prerequisites">Prerequisites</h2>
+
+                        <p>This package requires:</p>
+                        <ul>
+                            <li>PHP 5.4+</li>
+                            <li>ext-soap</li>
+                            <li>ext-openssl *</li>
+                        </ul>
+                        <p>*<em>(Livedocx is <a href="https://filippo.io/Heartbleed/#api.livedocx.com">unaffected by Heartbleed security leak</a>)</em></p>
+
+
+                        <h2 id="install">Installation</h2>
+                        <p>To install this package using <a href="https://getcomposer.org/">Composer</a>, simply add this to you <code>composer.json</code> file</p>
+                        <pre class="prettyprint linenums"><code class="language-json"> "require" : {
+    "awakenweb/livedocx" : "1.0"
+ }</code></pre>
+                        <p>Available framework integration packages:</p>
+                        <ul>
+                            <li>Laravel 4: <a href="https://github.com/awakenweb/livedocx4laravel">awakenweb/Livedocx4Laravel</a></li>
+                        </ul>
+
+
+                        <h2 id="coverage">What parts of the Livedocx API are covered by this package?</h2>
+                        <p>This package provides support for the following API:</p>
+                        <ul>
+                            <li>Document merging</li>
+                            <li>Repeated blocks merging</li>
+                            <li>Images merging</li>
+                            <li>Bitmap exports</li>
+                            <li>Metafiles</li>
+                            <li>Subtemplates</li>
+                        </ul>
+                        <p>As there is really few documentation about the shared documents feature, I did not add support for now. I may add it when I find some doc about how to use it.</p>
+
+
+                        <h2 id="use">Use</h2>
+                        <p>First, a <a href="http://www.livedocx.com/">Livedocx</a> account is required. It may be any account type: free, premium, or fully licenced.</p>
+                        <p>The full documentation is in progress and should arrive shortly. For now, here is a simple example of usage. For more informations, take a look at the code.</p>
+                        <pre class="prettyprint linenums"><code class="language-php">
+use Awakenweb\Livedocx\Soap\Client;
+use Awakenweb\Livedocx\Livedocx;
+use Awakenweb\Livedocx\Container;
+<br>
+// for free accounts:
+$wsdl = &#39;https://api.livedocx.com/2.1/mailmerge.asmx?wsdl&#39;;
+// for premium:
+$wsdl = &quot;https://premium01.livedocx.com/REPLACE_THIS_BY_YOUR_USERNAME/mailmerge.asmx?WSDL&quot;
+// for fully licensed: only you may know
+<br>
+$soap = new Client(new \SoapClient($wsdl));
+$soap-&gt;connect(USERNAME, PASSWORD);
+<br>
+$Livedocx = new Livedocx($soap, new Container());
+<br>
+$livedocx-&gt;assign(array(
+    &#39;somefieldname&#39;  =&gt; &#39;some value&#39;,
+    &#39;someOtherField&#39; =&gt; &#39;another value&#39;
+    )
+);
+<br>
+$block = $livedocx->createBlock();
+$block->setName('myblock');
+$block->bind([
+    ['firstfield' => 'some text', 'secondblockfield' => 'another text'],
+    ['firstfield' => 'some other text', 'secondblockfield' => 'yet another text']
+]);
+$livedocx->assign($block);
+<br>
+$remoteTemplate = $livedocx-&gt;createRemoteTemplate();
+$remoteTemplate-&gt;setName(&#39;myTemplate.docx&#39;)
+               -&gt;setAsActive();
+<br>
+$document = $livedocx-&gt;prepare();
+$document-&gt;setPassword(&#39;$3CR3T&#39;);
+$document-&gt;create();
+<br>
+file_put_contents(&#39;myPdfFile.pdf&#39;, $document-&gt;retrieve(&#39;pdf&#39;));</code></pre>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row center">
+                    Copyright Mathieu Savelli 2014
+                </div>
+            </div>
+        </footer>
+
+    </body>
+</html>

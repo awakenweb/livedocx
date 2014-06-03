@@ -1,0 +1,44 @@
+.alert {
+    display: block;
+    width: 100%;
+    min-height: 10px;
+    padding: 5px 30px;
+    margin: 30px 0;
+    @include border-radius(6px);
+}
+
+.alert .header {
+    padding-top: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.alert.success {
+    background-color: $emerald;
+    border: 1px solid $nephritis;
+    color: #FFF;
+}
+
+.alert.info {
+    background-color: $peter-river;
+    border: 1px solid $belize-hole;
+    color: #FFF;
+}
+
+.alert.error {
+    background-color: $alizarin;
+    border: 1px solid $pomegranate;
+    color: #FFF;
+}
+
+.alert.warning {
+    background-color: $carrot;
+    border: 1px solid $pumpkin;
+    color: #FFF;
+}
+
+.alert.note {
+    background-color: $sun-flower;
+    border: 1px solid $orange;
+    color: $wet-asphalt;
+}

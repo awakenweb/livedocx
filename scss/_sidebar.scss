@@ -1,0 +1,44 @@
+.sidebar{
+    .links {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        position: relative;
+        list-style-type: none;
+    }
+
+    .link {
+        width: 100%;
+        margin: 0 auto;
+        padding: 0 20px;
+        border-bottom: 1px solid $clouds;
+
+        a {
+            display: block;
+            margin: 0;
+            padding: 0;
+            height: 64px;
+            line-height: 70px;
+            vertical-align: center;
+            text-transform: none;
+            text-decoration: none;
+            color: $wet-asphalt;
+            transition: 0.1s linear;
+        }
+
+        a:hover{
+            font-weight: bold;
+            padding-left: 50px;
+
+        }
+    }
+
+    .active{
+        font-weight: bold;
+        color: $green-sea;
+        &:hover {
+            color: $clouds;
+        }
+    }
+}

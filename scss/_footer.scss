@@ -1,0 +1,18 @@
+.footer {
+    margin-top: 20px;
+    background-color: $green-sea;
+    color: $clouds;
+
+    ul {
+        list-style-type: none;
+    }
+
+    a {
+        color: $clouds;
+
+        &:hover {
+            color: $silver;
+        }
+    }
+}
+

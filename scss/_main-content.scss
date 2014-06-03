@@ -1,0 +1,21 @@
+.method{
+    background-color: $clouds;
+    border-bottom: 1px solid $concrete;
+}
+
+.method-name {
+    padding: 10px 20px 0;
+    color: $peter-river;
+}
+
+.method-definition {
+    padding: 0 40px 10px;
+}
+
+code {
+    color: $alizarin;
+}
+
+pre {
+    line-height: 1.3em;
+}

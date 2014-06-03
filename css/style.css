@@ -964,3 +964,21 @@ code {
 pre {
   line-height: 1.3em;
 }
+
+.footer {
+  margin-top: 20px;
+  background-color: #16a085;
+  color: #ecf0f1;
+}
+
+.footer ul {
+  list-style-type: none;
+}
+
+.footer a {
+  color: #ecf0f1;
+}
+
+.footer a:hover {
+  color: #bdc3c7;
+}

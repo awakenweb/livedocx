@@ -12,7 +12,7 @@
         <nav class="navbar">
             <div class="container">
                 <div class="logo">
-                    <a class="logo-link" href="index.html">Livedocx</a>
+                    <a class="logo-link" href="index.html">Livedocx PHP</a>
                 </div>
                 <ul class="links">
                     <li class="link active"><a href="classes.html">Classes</a> </li>
@@ -22,7 +22,7 @@
 
         <header class="header">
             <div class="jumbo">
-                <h1>Livedocx</h1>
+                <h1>Livedocx PHP</h1>
                 <p class="tagline">Description of all classes of the package.</p>
             </div>
         </header>
@@ -693,18 +693,16 @@ $livedocx-&gt;assign($block);</code></pre>
                                     <p><strong>Add one or multiple lines of values to a block</strong> This method is chainable.</p>
                                     <p>When binding a set of values to a block, you can either do it line by line, or multiple lines at the same time.</p>
                                     <pre class="prettyprint linenums"><code class="language-php">$block-&gt;bind([&#39;firstname&#39; =&gt; &#39;Arnold&#39;, &#39;lastname&#39; =&gt; &#39;Schwarzenegger&#39;])
--&gt;bind([&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;])
--&gt;bind([&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]);
+      -&gt;bind([&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;])
+      -&gt;bind([&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]);
 <br>
 // has exactly the same result as
 <br>
-$block-&gt;bind(
-[
-  [&#39;firstname&#39; =&gt; &#39;Arnold&#39;, &#39;lastname&#39; =&gt; &#39;Schwarzenegger&#39;],
-  [&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;],
-  [&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]
-]
-);</code></pre>
+$block-&gt;bind([
+    [&#39;firstname&#39; =&gt; &#39;Arnold&#39;, &#39;lastname&#39; =&gt; &#39;Schwarzenegger&#39;],
+    [&#39;firstname&#39; =&gt; &#39;Chuck&#39;, &#39;lastname&#39; =&gt; &#39;Norris&#39;],
+    [&#39;firstname&#39; =&gt; &#39;Jean-Claude&#39;, &#39;lastname&#39; =&gt; &#39;Van Damme&#39;]
+]);</code></pre>
                                     <p>When you try to bind a value that is not contained in an array, a <code>Block\InvalidException</code> will be thrown.</p>
                                 </div>
                             </div>
@@ -763,26 +761,96 @@ $block-&gt;bind(
 
                         <article id="soap">
                             <h1>Soap Client</h1>
-                            Soon
-                            <hr>
+                            <h2>Usage</h2>
+                            <p>The SOAP Client is heavilly used behind the scene, and you only have to manipulate a few of its methods. Constructor and connect are the only methods you will have to deal with.</p>
+                            <p>The constructor takes a ext-soap <code>\SoapClient</code> as parameter, as you can see in the example below.</p>
+                            <pre class="prettyprint linenums"><code class="language-php">&lt;?php
+use Awakenweb\Livedocx\Soap\Client;
+use Awakenweb\Livedocx\Livedocx;
+use Awakenweb\Livedocx\Container;
+<br>
+// for free accounts:
+$wsdl = &#39;https://api.livedocx.com/2.1/mailmerge.asmx?wsdl&#39;;
+// for premium:
+$wsdl = &quot;https://premium01.livedocx.com/REPLACE_THIS_BY_YOUR_USERNAME/mailmerge.asmx?WSDL&quot;
+// for fully licensed: only you may know
+<br>
+$soap = new Client(new \SoapClient($wsdl));
+$soap-&gt;connect(USERNAME, PASSWORD);
+<br>
+if($soap-&gt;isConnected()) {
+    $Livedocx = new Livedocx($soap, new Container());
+} else {
+    throw new \Exception(&#39;WTF (What a Terrible Failure)&#39;);
+}
+<br>
+// your code goes here
+<br>
+</code></pre>
+                            <h2>Methods</h2>
+
+                            <div class="method">
+                                <h3 class="method-name">connect($username, $password)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Soap\ConnectException</code> </em></p>
+                                    <ul>
+                                        <li>$username: <em>string</em></li>
+                                        <li>$password: <em>string</em></li>
+                                    </ul>
+                                    <p><strong> Authenticate the user to the Livedocx webservice. </strong> This method is absolutely mandatory, as no API call can be done if this method has not been called before.</p>
+                                    <p>If an error occurs when authenticating, a <code>Soap\ConnectException</code> will be thrown.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">isConnected()</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: none</em></p>
+                                    <p><strong> Verify if the connect(...) method has been called.</strong> Returns a boolean.</p>
+                                </div>
+                            </div>
+
+                            <div class="method">
+                                <h3 class="method-name">__call($name, $arguments)</h3>
+                                <div class="method-definition">
+                                    <p><em>Exceptions: <code>Soap\ConnectException</code>, <code>SoapException</code> </em></p>
+                                    <p><strong> This method acts as a proxy for any API call method.</strong> Returns the result of the API call.</p>
+                                    <p>If an API call is made before the connect(...) method has been called, a <code>Soap\ConnectException</code> will be thrown.</p>
+                                    <p>If an error occurs while making the actual API call, a <code>SoapException</code> will be thrown.</p>
+                                </div>
+                            </div>
                         </article>
                     </div>
                 </div>
             </div>
         </section>
 
-
-
         <footer class="footer">
             <div class="container">
-                <div class="row center">
-                    Copyright Mathieu Savelli 2014
+                <div class="row">
+                    <div class="col-4">
+                        <h1>Livedocx PHP</h1>
+                        Copyright Mathieu Savelli 2014
+                    </div>
+                    <div class="col-4">
+                        <h2>Awakenweb</h2>
+                        <ul>
+                            <li><a href="http://awakenweb.fr">Website</a></li>
+                            <li><a href="http://github.com/awakenweb/">GitHub</a></li>
+                            <li><a href="http://twitter.com/awakenweb">Twitter</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-4">
+                        <h2>Livedocx</h2>
+                        <ul>
+                            <li><a href="http://www.livedocx.com/">Website</a></li>
+                            <li><a href="http://www.phplivedocx.org/">Official PHP Documentation</a></li>
+                            <li><a href="http://www.livedocx.com/pub/documentation/templates.aspx">Templates Howto</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </footer>
-
-
-
 
     </body>
 </html>

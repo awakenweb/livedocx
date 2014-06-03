@@ -12,7 +12,7 @@
         <nav class="navbar">
             <div class="container">
                 <div class="logo">
-                    <a class="logo-link" href="index.html">Livedocx</a>
+                    <a class="logo-link" href="index.html">Livedocx PHP</a>
                 </div>
                 <ul class="links">
                     <li class="link"><a href="classes.html">Classes</a> </li>
@@ -22,7 +22,7 @@
 
         <header class="header">
             <div class="jumbo">
-                <h1>Livedocx</h1>
+                <h1>Livedocx PHP</h1>
                 <p class="tagline">Generate PDF and other document types using the Livedocx webservice in PHP.</p>
             </div>
         </header>
@@ -98,6 +98,7 @@
                         <p>First, a <a href="http://www.livedocx.com/">Livedocx</a> account is required. It may be any account type: free, premium, or fully licenced.</p>
                         <p>The full documentation is in progress and should arrive shortly. For now, here is a simple example of usage. For more informations, take a look at the code.</p>
                         <pre class="prettyprint linenums"><code class="language-php">
+&lt;?php
 use Awakenweb\Livedocx\Soap\Client;
 use Awakenweb\Livedocx\Livedocx;
 use Awakenweb\Livedocx\Container;
@@ -144,8 +145,27 @@ file_put_contents(&#39;myPdfFile.pdf&#39;, $document-&gt;retrieve(&#39;pdf&#39;)
 
         <footer class="footer">
             <div class="container">
-                <div class="row center">
-                    Copyright Mathieu Savelli 2014
+                <div class="row">
+                    <div class="col-4">
+                        <h1>Livedocx PHP</h1>
+                        Copyright Mathieu Savelli 2014
+                    </div>
+                    <div class="col-4">
+                        <h2>Awakenweb</h2>
+                        <ul>
+                            <li><a href="http://awakenweb.fr">Website</a></li>
+                            <li><a href="http://github.com/awakenweb/">GitHub</a></li>
+                            <li><a href="http://twitter.com/awakenweb">Twitter</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-4">
+                        <h2>Livedocx</h2>
+                        <ul>
+                            <li><a href="http://www.livedocx.com/">Website</a></li>
+                            <li><a href="http://www.phplivedocx.org/">Official PHP Documentation</a></li>
+                            <li><a href="http://www.livedocx.com/pub/documentation/templates.aspx">Templates Howto</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </footer>

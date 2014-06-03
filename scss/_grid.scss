@@ -1,0 +1,53 @@
+/*--------------------------------------*\
+ * VARIABLES                            *
+\*--------------------------------------*/
+$columns: 12 !default;
+$gutter: 30px !default;
+$medium-break-point: 640px !default;
+$large-break-point: 1024px !default;
+
+
+/*--------------------------------------*\
+ * TOOLS                                *
+\*--------------------------------------*/
+%col{
+    position: relative;
+    float: left;
+    min-height: 1px;
+    padding: 0 $gutter/2 ;
+}
+
+/*--------------------------------------*\
+ * COMMON CLASSES                       *
+\*--------------------------------------*/
+
+.row{
+    padding: 0 10px;
+    margin:  0 (-$gutter/2);
+    clear: both;
+    @include clearfix;
+
+}
+
+/*--------------------------------------*\
+ * SMALL                                *
+\*--------------------------------------*/
+
+@for $i from 1 through $columns {
+
+    .col-#{$i}, .m-#{$i}, .l-#{$i} { @extend %col; }
+
+    .col-#{$i}{
+        width: $i / $columns * 100%;
+    }
+
+    .col-push-#{$i}{ left:$i / $columns * 100%; }
+    .col-pull-#{$i}{ left: -($i / $columns * 100%); }
+    .col-offset-#{$i}{margin-left:$i / $columns * 100%; }
+}
+
+.container {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1280px;
+}

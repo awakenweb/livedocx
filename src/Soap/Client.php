@@ -56,6 +56,8 @@ class Client
      * Create a new abstraction instance of the SoapClient
      *
      * @param SoapClient $client
+     *
+     * @api
      */
     public function __construct(SoapClient $client)
     {
@@ -71,6 +73,8 @@ class Client
      * @return Client
      *
      * @throws SoapException
+     *
+     * @api
      */
     public function connect($username , $password)
     {
@@ -88,6 +92,8 @@ class Client
     /**
      *
      * @return boolean
+     *
+     * @api
      */
     public function isConnected()
     {
@@ -102,6 +108,7 @@ class Client
      *
      * @return mixed
      *
+     * @api
      */
     public function __call($methodname , $args)
     {
@@ -122,6 +129,8 @@ class Client
      * @param array $array
      *
      * @return array
+     *
+     * @internal
      */
     public function convertArray($array)
     {
@@ -136,6 +145,7 @@ class Client
      * @param array $array
      *
      * @return boolean
+     *
      */
     protected function isArrayMulti($array)
     {
@@ -153,6 +163,8 @@ class Client
      * @param array $assoc
      *
      * @return array
+     *
+     * @internal
      */
     protected function assocArrayToArrayOfArrayOfString($assoc)
     {
@@ -169,6 +181,8 @@ class Client
      * @param array $multi
      *
      * @return array
+     *
+     * @internal
      */
     protected function multiAssocArrayToArrayOfArrayOfString($multi)
     {
@@ -192,6 +206,8 @@ class Client
      * @param stdClass $list
      *
      * @return array
+     *
+     * @internal
      */
     public function backendListArrayToMultiAssocArray(stdClass $list)
     {

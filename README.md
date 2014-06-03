@@ -4,6 +4,8 @@ Livedocx
 ========
 Generate PDF and other document types using the Livedocx webservice in PHP.
 
+You can now check the [complete documentation](http://awakenweb.github.io/livedocx/)
+
 Why this package?
 -----------------
 
@@ -41,7 +43,7 @@ To install this package using [Composer](https://getcomposer.org/), simply add t
  }
 ```
 
-Available framework integration packages: 
+Available framework integration packages:
 * Laravel 4: [awakenweb/Livedocx4Laravel](https://github.com/awakenweb/livedocx4laravel)
 
 What parts of the Livedocx API are covered by this package?

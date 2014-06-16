@@ -35,19 +35,19 @@ class Container
      *
      * @var array
      */
-    protected $fields = [ ];
+    protected $fields = [];
 
     /**
      *
      * @var array
      */
-    protected $blocks = [ ];
+    protected $blocks = [];
 
     /**
      *
      * @var array
      */
-    protected $images = [ ];
+    protected $images = [];
 
     /**
      * Register a set of values to be merged within the template.
@@ -60,27 +60,27 @@ class Container
      *
      * @throws ContainerException
      */
-    public function assign($fieldname , $value = null)
+    public function assign($fieldname, $value = null)
     {
-        if ( $fieldname instanceOf Block ) {
+        if ($fieldname instanceOf Block) {
             $this->blocks[] = $fieldname;
             return $this;
         }
 
-        if ( is_array($fieldname) && ! empty($fieldname) ) { // bulk fields assignment
-            foreach ( $fieldname as $field => $val ) {
-                $this->fields[ $field ] = $val;
+        if (is_array($fieldname) && !empty($fieldname)) { // bulk fields assignment
+            foreach ($fieldname as $field => $val) {
+                $this->fields[$field] = $val;
             }
             return $this;
         }
 
-        if ( is_string($fieldname) && $value instanceOf Image ) {
-            $this->images[ 'image:' . $fieldname ] = $value;
+        if (is_string($fieldname) && $value instanceOf Image) {
+            $this->images['image:' . $fieldname] = $value->getName();
             return $this;
         }
 
-        if ( is_string($fieldname) && ! is_null($value) ) {
-            $this->fields[ $fieldname ] = $value;
+        if (is_string($fieldname) && !is_null($value)) {
+            $this->fields[$fieldname] = $value;
             return $this;
         }
 

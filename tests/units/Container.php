@@ -14,12 +14,12 @@ class Container extends atoum
      *
      * @dataProvider wrongParametersAssign
      */
-    public function test_assign_throw_exception_when_wrong_parameters($fieldname , $value)
+    public function test_assign_throw_exception_when_wrong_parameters($fieldname, $value)
     {
         $container = new LDXContainer();
 
-        $this->exception(function() use ($container , $fieldname , $value) {
-                    $container->assign($fieldname , $value);
+        $this->exception(function() use ($container, $fieldname, $value) {
+                    $container->assign($fieldname, $value);
                 })
                 ->isInstanceOf('Awakenweb\Livedocx\Exceptions\ContainerException')
                 ->hasMessage('Incorrect parameters for assignment');
@@ -45,11 +45,12 @@ class Container extends atoum
         $mockImage = new \mock\Awakenweb\Livedocx\Image();
         $container = new LDXContainer();
 
-        $container->assign('testField' , $mockImage);
+        $mockImage->getMockController()->getName = 'test';
+        $container->assign('testField', $mockImage);
 
         $this->array($container->getImages())
                 ->hasKey('image:testField')
-                ->contains($mockImage);
+                ->contains('test');
     }
 
     public function test_assign_store_arrays()
@@ -57,24 +58,24 @@ class Container extends atoum
         $container = new LDXContainer();
 
         $container->assign([
-            'test'  => 'testValue' ,
+            'test'  => 'testValue',
             'test2' => 'testValue2'
         ]);
 
         $this->array($container->getFields())
-                ->hasKeys(['test' , 'test2' ])
-                ->containsValues(['testValue' , 'testValue2' ]);
+                ->hasKeys(['test', 'test2'])
+                ->containsValues(['testValue', 'testValue2']);
     }
 
     public function test_assign_store_singleValue()
     {
         $container = new LDXContainer();
 
-        $container->assign('test' , 'testValue');
+        $container->assign('test', 'testValue');
 
         $this->array($container->getFields())
-                ->hasKeys(['test' ])
-                ->containsValues(['testValue' ]);
+                ->hasKeys(['test'])
+                ->containsValues(['testValue']);
     }
 
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
@@ -86,10 +87,10 @@ class Container extends atoum
     public function wrongParametersAssign()
     {
         return [
-            ['random string' , null ] ,
-            [null , null ] ,
-            [new \stdClass() , null ] ,
-            [array() , null ] ,
+            ['random string', null],
+            [null, null],
+            [new \stdClass(), null],
+            [array(), null],
         ];
     }
 

@@ -57,6 +57,8 @@ class Block
      * @param string $block_name
      *
      * @throws NameException
+     *
+     * @api
      */
     public function setName($block_name)
     {
@@ -67,33 +69,31 @@ class Block
     }
 
     /**
-     * Bind a value to a block key
+     * Bind a set of values to a block fieldname
      *
-     * @param string| array        $key
-     * @param string|integer|float $value
+     * @param array          $values
      *
      * @return Block
      *
      * @throws InvalidException
+     *
+     * @api
      */
-    public function bind($key , $value = null)
+    public function bind($values)
     {
+        if ( ! is_array($values) ) {
+            throw new InvalidException('Values assigned to a block must be an array');
+        }
 
-        if ( is_array($key) ) {
-            foreach ( $key as $fieldname => $val ) {
-                $this->bind($fieldname , $val);
-            }
-        } else {
+        // only one value
+        if ( ! $this->isArrayMulti($values) ) {
+            $this->bindings[] = $values;
+            return $this;
+        }
 
-            if ( is_null($key) || ! is_string($key) || $key === '' ) {
-                throw new InvalidException('Block binding key must be a non empty string');
-            }
-
-            if ( is_null($value) || ( ! is_string($value) && ! is_numeric($value)) || $value === '' ) {
-                throw new InvalidException('Block binding value must be a non empty string or number');
-            }
-
-            $this->bindings[ $key ] = $value;
+        // multiple values
+        foreach ( $values as $line ) {
+            $this->bind($line);
         }
 
         return $this;
@@ -103,6 +103,8 @@ class Block
      * Return the complete bindings set for this block
      *
      * @return array
+     *
+     * @internal
      */
     public function retrieveValues()
     {
@@ -112,9 +114,14 @@ class Block
     /**
      *
      * @return string
+     *
+     * @api
      */
     public function getName()
     {
+        if ( is_null($this->block_name) ) {
+            throw new NameException('The name of the block has not been set');
+        }
         return $this->block_name;
     }
 
@@ -124,6 +131,8 @@ class Block
      * @return array
      *
      * @throws StatusException
+     *
+     * @api
      */
     public function getAllBlockNames()
     {
@@ -150,6 +159,9 @@ class Block
      * @return array
      *
      * @throws StatusException
+     * @throws NameException @see Block::getName
+     *
+     * @api
      */
     public function getFieldNames()
     {
@@ -171,6 +183,24 @@ class Block
         }
 
         return $ret;
+    }
+
+    /**
+     *
+     * @param array $array
+     *
+     * @return boolean
+     *
+     * @internal
+     */
+    protected function isArrayMulti($array)
+    {
+        foreach ( $array as $value ) {
+            if ( is_array($value) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

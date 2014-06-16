@@ -29,7 +29,6 @@ namespace Awakenweb\Livedocx;
 use Awakenweb\Livedocx\Exceptions\SoapException;
 use Awakenweb\Livedocx\Exceptions\Templates\IgnoreException;
 use Awakenweb\Livedocx\Exceptions\Templates\InvalidException;
-use Awakenweb\Livedocx\Exceptions\Templates\NonActiveException;
 use Awakenweb\Livedocx\Exceptions\Templates\StatusException;
 
 /**

@@ -32,8 +32,22 @@ use Awakenweb\Livedocx\Tools\ResultSet;
 class Tools
 {
 
-    public function pingService($host, $port = 443, $attempts = 5, $threshold = 1000, $timeout = 3000)
+    protected $host;
+
+    /**
+     *
+     * @param string $host
+     */
+    public function __construct($host)
     {
+        $this->host = $host;
+    }
+
+    public function pingService($host = null, $port = 443, $attempts = 5, $threshold = 1000, $timeout = 3000)
+    {
+        if (is_null($host))
+            $host = $this->host;
+
         $resultset = new ResultSet;
         for ($i = 1; $i <= $attempts; $i++) {
             $resultset->addResult($this->getResult($i, $host, $port, $threshold, $timeout));

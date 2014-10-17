@@ -2,6 +2,8 @@
 
 namespace Awakenweb\Livedocx;
 
+use Awakenweb\Livedocx\Exceptions\DocumentBuilder as DocumentBuilderExcep;
+
 /**
  * Description of DocumentBuilder
  *
@@ -94,12 +96,12 @@ class DocumentBuilder
     /**
      * Inject the Livedocx API into the document builder
      * 
-     * @param \Awakenweb\Livedocx\Livedocx $livedocx
+     * @param Livedocx $livedocx
      */
     function __construct(Livedocx $livedocx, $imagesPath = __DIR__, $templatesPath = __DIR__, $documentsPath = __DIR__)
     {
         $this->livedocx = $livedocx;
-        $this->imagesPäth = $imagesPäth;
+        $this->imagesPath = $imagesPath;
         $this->templatesPath = $templatesPath;
         $this->documentsPath = $documentsPath;
     }
@@ -107,25 +109,12 @@ class DocumentBuilder
     /**
      * 
      * @param type $documentName
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function createDocument($documentName)
     {
 
         $this->documentName = $documentName;
-
-        return $this;
-    }
-
-    /**
-     * 
-     * @param type $fileFormat
-     * @return \Awakenweb\Livedocx\DocumentBuilder
-     */
-    public function retrieveAs($fileFormat)
-    {
-
-        $this->fileFormat = $fileFormat;
 
         return $this;
     }
@@ -142,7 +131,7 @@ class DocumentBuilder
      * 
      * @param string $templateName
      * @param boolean $cacheTemplate
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function fromTemplate($templateName, $cacheTemplate = false)
     {
@@ -158,7 +147,7 @@ class DocumentBuilder
      * to be merged.
      * 
      * @param array $values
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function with(array $values)
     {
@@ -175,7 +164,7 @@ class DocumentBuilder
      * If the images are present on the server, it uses them, and uploads them else.
      * 
      * @param array $images
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function withImages(array $images)
     {
@@ -191,7 +180,7 @@ class DocumentBuilder
      * Set a block of repeated values to be merged.
      * 
      * @param array $values
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function withBlock($blockName, array $values)
     {
@@ -201,15 +190,27 @@ class DocumentBuilder
     }
 
     /**
+     * 
+     * @param type $fileFormat
+     * @return DocumentBuilder
+     */
+    public function retrieve($fileFormat)
+    {
+        $this->result = $this->generateDocument($fileFormat);
+
+        return $this;
+    }
+
+    /**
      * Persist the document on your disk.
      * 
      * @param string $path
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     public function save()
     {
         if (is_null($this->result)) {
-            $this->result = $this->generateDocument();
+            throw new DocumentBuilderExcep\RetrieveException('You have to retrieve the document before saving it');
         }
         $formatedDocumentName = $this->documentsPath . '/' . $this->documentName . '.' . $this->fileFormat;
         file_put_contents($formatedDocumentName, $this->result);
@@ -225,27 +226,30 @@ class DocumentBuilder
     public function get()
     {
         if (is_null($this->result)) {
-            $this->result = $this->generateDocument();
+            throw new DocumentBuilderExcep\RetrieveException('You have to retrieve the document before using it');
         }
         return $this->result;
     }
 
-    protected function generateDocument()
+    /**
+     * 
+     * @param type $fileFormat
+     * @return type
+     */
+    protected function generateDocument($fileFormat)
     {
         $this->prepareTemplate()
-                ->prepareTemplate()
                 ->prepareImages()
                 ->sendValues();
-        return $this->livedocx
-                        ->prepare()
-                        ->create()
-                        ->retrieve($this->fileFormat);
+        $document = $this->livedocx->prepare();
+        return $document->create()
+                        ->retrieve($fileFormat);
     }
 
     /**
      * Send the fields and blocks values to the server
      * 
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     protected function sendValues()
     {
@@ -267,27 +271,18 @@ class DocumentBuilder
     /**
      * check existence of the template and uploads it if it do not exist.
      * 
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     protected function prepareTemplate()
     {
 
 
-        if ($this->cacheTemplate) {
-            // if the template must be cached for later re-use
-            $tpl = $this->livedocx
-                    ->createRemoteTemplate();
-            $tpl->setName($this->templateName);
+        $tpl = $this->livedocx
+                ->createRemoteTemplate();
+        $tpl->setName($this->templateName);
 
-            if (!$tpl->exists()) {
-                $localTpl = $this->livedocx->createLocalTemplate();
-                $localTpl->setName($this->templateName, $this->templatesPath);
-                $localTpl->upload();
-            }
-        } else {
-            // if the template is only used for a one-shot generation
-            $tpl = $this->livedocx->createLocalTemplate();
-            $ppl->setName($this->templateName, $this->templatesPath);
+        if (!$tpl->exists()) {
+            $tpl = $this->uploadTemplate($this->templateName, $this->cacheTemplate);
         }
 
         $tpl->setAsActive();
@@ -298,7 +293,7 @@ class DocumentBuilder
     /**
      * upload the images if they do not exist on the server
      * 
-     * @return \Awakenweb\Livedocx\DocumentBuilder
+     * @return DocumentBuilder
      */
     protected function prepareImages()
     {
@@ -311,6 +306,21 @@ class DocumentBuilder
             $this->livedocx->assign($imgName, $img);
         }
         return $this;
+    }
+
+    protected function uploadTemplate($name, $cache = false)
+    {
+        $localTpl = $this->livedocx->createLocalTemplate();
+        $localTpl->setName($name, $this->templatesPath);
+        
+        if ($cache) {
+            $localTpl->upload();
+            $tpl = $this->livedocx->createRemoteTemplate();
+            $tpl->setName($name);
+            return $tpl;
+        }
+        
+        return $localTemplate;
     }
 
 }

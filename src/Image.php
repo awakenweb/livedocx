@@ -61,7 +61,7 @@ class Image
      * @param string      $filename
      * @param string|null $directory
      */
-    public function setFilename($filename , $directory = null)
+    public function setFilename($filename, $directory = null)
     {
         $this->filename  = $filename;
         $this->directory = $directory;
@@ -77,12 +77,12 @@ class Image
      */
     public function getName($full = false)
     {
-        if ( ! $full ) {
+        if (!$full) {
             return $this->filename;
         }
         $filename = $this->directory ? $this->directory . '/' . $this->filename : $this->filename;
 
-        return str_replace('//' , '/' , $filename);
+        return str_replace('//', '/', $filename);
     }
 
     /**
@@ -95,15 +95,15 @@ class Image
     public function listAll()
     {
         try {
-            $return = [ ];
+            $return = [];
             $result = $this->getSoapClient()->ListImages();
-            if ( isset($result->ListImagesResult) ) {
+            if (isset($result->ListImagesResult)) {
                 $return = $this->getSoapClient()->backendListArrayToMultiAssocArray($result->ListImagesResult);
             }
 
             return $return;
-        } catch ( SoapException $ex ) {
-            throw new StatusException('Error while obtaining the list of all images' , $ex);
+        } catch (SoapException $ex) {
+            throw new StatusException('Error while obtaining the list of all images', $ex);
         }
     }
 
@@ -119,14 +119,13 @@ class Image
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetImageImportFormats();
-            if ( isset($result->GetImageImportFormatsResult->string) ) {
-                $ret = $result->GetImageImportFormatsResult->string;
-                $ret = array_map('strtolower' , $ret);
+            if (isset($result->GetImageImportFormatsResult->string)) {
+                $ret = array_map('strtolower', $result->GetImageImportFormatsResult->string);
             }
 
             return $ret;
-        } catch ( SoapException $ex ) {
-            throw new StatusException('Error while obtaining the list of accepted image formats' , $ex);
+        } catch (SoapException $ex) {
+            throw new StatusException('Error while obtaining the list of accepted image formats', $ex);
         }
     }
 
@@ -142,14 +141,13 @@ class Image
         try {
             $ret    = array();
             $result = $this->getSoapClient()->GetImageExportFormats();
-            if ( isset($result->GetImageExportFormatsResult->string) ) {
-                $ret = $result->GetImageExportFormatsResult->string;
-                $ret = array_map('strtolower' , $ret);
+            if (isset($result->GetImageExportFormatsResult->string)) {
+                $ret = array_map('strtolower', $result->GetImageExportFormatsResult->string);
             }
 
             return $ret;
-        } catch ( SoapException $ex ) {
-            throw new StatusException('Error while obtaining the list of all available image formats' , $ex);
+        } catch (SoapException $ex) {
+            throw new StatusException('Error while obtaining the list of all available image formats', $ex);
         }
     }
 
@@ -165,19 +163,19 @@ class Image
     {
         $filename = $this->getName(true);
 
-        if ( ! is_readable($filename) ) {
+        if (!is_readable($filename)) {
             throw new FileExistException('Image file from disk is not readable');
         }
 
         try {
             $this->getSoapClient()->UploadImage(array(
-                'image'    => base64_encode(file_get_contents($filename)) ,
-                'filename' => basename($filename) ,
+                'image'    => base64_encode(file_get_contents($filename)),
+                'filename' => basename($filename),
             ));
 
             return $this;
-        } catch ( SoapException $e ) {
-            throw new UploadException('Error while uploading the image' , $e);
+        } catch (SoapException $e) {
+            throw new UploadException('Error while uploading the image', $e);
         }
     }
 
@@ -192,12 +190,12 @@ class Image
     {
         try {
             $result = $this->getSoapClient()->DownloadImage(array(
-                'filename' => basename($this->filename) ,
+                'filename' => basename($this->filename),
             ));
 
             return base64_decode($result->DownloadImageResult);
-        } catch ( SoapException $e ) {
-            throw new DownloadException('Error while downloading the image' , $e);
+        } catch (SoapException $e) {
+            throw new DownloadException('Error while downloading the image', $e);
         }
     }
 
@@ -212,12 +210,12 @@ class Image
     {
         try {
             $result = $this->getSoapClient()->ImageExists(array(
-                'filename' => basename($this->filename) ,
+                'filename' => basename($this->filename),
             ));
 
-            return ( boolean ) $result->ImageExistsResult;
-        } catch ( SoapException $e ) {
-            throw new StatusException('Error while verifying existence of the image' , $e);
+            return (boolean) $result->ImageExistsResult;
+        } catch (SoapException $e) {
+            throw new StatusException('Error while verifying existence of the image', $e);
         }
     }
 
@@ -232,12 +230,12 @@ class Image
     {
         try {
             $this->getSoapClient()->DeleteImage([
-                'filename' => basename($this->getName(true)) ,
+                'filename' => basename($this->getName(true)),
             ]);
 
             return $this;
-        } catch ( SoapException $e ) {
-            throw new DeleteException('Error while deleting the image' , $e);
+        } catch (SoapException $e) {
+            throw new DeleteException('Error while deleting the image', $e);
         }
     }
 

@@ -2,7 +2,7 @@
 
 namespace Awakenweb\Livedocx;
 
-use Awakenweb\Livedocx\Exceptions\DocumentBuilder as DocumentBuilderExcep;
+use Awakenweb\Livedocx\Exceptions\DocumentBuilder\RetrieveException;
 
 /**
  * Description of DocumentBuilder
@@ -210,7 +210,7 @@ class DocumentBuilder
     public function save()
     {
         if (is_null($this->result)) {
-            throw new DocumentBuilderExcep\RetrieveException('You have to retrieve the document before saving it');
+            throw new RetrieveException('You have to retrieve the document before saving it');
         }
         $formatedDocumentName = $this->documentsPath . '/' . $this->documentName . '.' . $this->fileFormat;
         file_put_contents($formatedDocumentName, $this->result);
@@ -226,7 +226,7 @@ class DocumentBuilder
     public function get()
     {
         if (is_null($this->result)) {
-            throw new DocumentBuilderExcep\RetrieveException('You have to retrieve the document before using it');
+            throw new RetrieveException('You have to retrieve the document before using it');
         }
         return $this->result;
     }
@@ -276,7 +276,6 @@ class DocumentBuilder
     protected function prepareTemplate()
     {
 
-
         $tpl = $this->livedocx
                 ->createRemoteTemplate();
         $tpl->setName($this->templateName);
@@ -291,7 +290,7 @@ class DocumentBuilder
     }
 
     /**
-     * upload the images if they do not exist on the server
+     * Uploads the images if they do not exist on the server
      * 
      * @return DocumentBuilder
      */
@@ -308,6 +307,15 @@ class DocumentBuilder
         return $this;
     }
 
+    /**
+     * Uploads the template to the server
+     * 
+     * Also stores it to Livedocx servers if the Cache parameter is set to true.
+     * 
+     * @param type $name
+     * @param type $cache
+     * @return type
+     */
     protected function uploadTemplate($name, $cache = false)
     {
         $localTpl = $this->livedocx->createLocalTemplate();
@@ -320,7 +328,7 @@ class DocumentBuilder
             return $tpl;
         }
         
-        return $localTemplate;
+        return $localTpl;
     }
 
 }

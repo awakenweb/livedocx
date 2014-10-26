@@ -45,22 +45,6 @@ class DocumentBuilder extends atoum
                 ->hasMessage('You have to retrieve the document before using it');
     }
 
-    public function test_workflow_calls_mock_methods()
-    {
-        $mock = $this->scaffoldMock();
-        $dbuilder = new LDXDocumentBuilder($mock);
-
-        $this->when(function() use ($dbuilder) {
-            $dbuilder->createDocument('myTestDocument')
-                    ->fromTemplate('testTemplate.docx')
-                    ->with(['testValue1' => 'valueOne', 'testValue2' => 'valueTwo'])
-                    ->withImages(['testImage' => __DIR__ . 'test.jpg'])
-                    ->retrieve('pdf');
-        })
-        ->string($dbuilder->get())
-                ->isEqualTo();
-    }
-
     /* = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = */
     /* = - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - = */
     /* = -                               DATA PROVIDERS                              - = */

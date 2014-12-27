@@ -102,6 +102,11 @@ $document->create();
 file_put_contents('myPdfFile.pdf', $document->retrieve('pdf'));
 ```
 
+F.A.Q
+-----
+
+* **I correctly set the fields but nothing appears in my final document**: Be warry that the Livedocx webservice is case sensitive for the field names. Double check your field names in your template and your code to see if their case match.
+
 Misc
 ----
 __Disclaimer__:

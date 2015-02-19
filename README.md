@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/awakenweb/livedocx.svg?branch=master)](https://travis-ci.org/awakenweb/livedocx)
+[![Packagist](https://img.shields.io/packagist/v/awakenweb/livedocx.svg)](https://packagist.org/packages/awakenweb/livedocx)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8/mini.png)](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8)
+
 
 Livedocx
 ========

@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/awakenweb/livedocx.svg?branch=master)](https://travis-ci.org/awakenweb/livedocx)
+[![Packagist](https://img.shields.io/packagist/v/awakenweb/livedocx.svg)](https://packagist.org/packages/awakenweb/livedocx)
+
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8/small.png)](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8)
+
 
 Livedocx
 ========
@@ -100,6 +104,11 @@ $document->create();
 
 file_put_contents('myPdfFile.pdf', $document->retrieve('pdf'));
 ```
+
+F.A.Q
+-----
+
+* **I correctly set the fields but nothing appears in my final document**: Be warry that the Livedocx webservice is case sensitive for the field names. Double check your field names in your template and your code to see if their case match.
 
 Misc
 ----

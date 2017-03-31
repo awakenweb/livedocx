@@ -4,6 +4,15 @@
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8/small.png)](https://insight.sensiolabs.com/projects/71019cc4-c5ab-41eb-84ae-fd695d3c6db8)
 
 
+This package is not maintained anymore.
+=======
+The Livedocxs service will shut down on Septembre 30th 2017.
+-------
+
+Use https://github.com/TextControl/txtextcontrol-reportingcloud-php instead
+-----------------------------------------
+
+
 Livedocx
 ========
 Generate PDF and other document types using the Livedocx webservice in PHP.
